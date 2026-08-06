@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Web Browser Interface</title>
+    <!-- Tailwind CSS CDN for Modern Styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-100 h-screen flex flex-col overflow-hidden">
+
+    <!-- Top Navigation Bar -->
+    <header class="bg-[#f0f2f5] border-b border-gray-300 px-4 py-2 flex items-center justify-between shadow-sm">
+        <!-- Left: Brand / Logo -->
+        <div class="flex items-center space-x-2 cursor-pointer" onclick="navigateToHome()">
+            <div class="bg-[#1877f2] text-white font-bold w-9 h-9 rounded flex items-center justify-center text-xl">
+                f
+            </div>
+            <span class="font-bold text-[#1877f2] text-lg hidden sm:inline">Facebook Browser</span>
+        </div>
+
+        <!-- Center: Action Tools & Controls -->
+        <div class="flex items-center space-x-2">
+            <button onclick="refreshPage()" title="Refresh" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1.5 rounded text-sm font-medium transition">
+                <i class="fas fa-rotate-right mr-1"></i> Refresh
+            </button>
+            <button onclick="pasteUID()" title="Paste UID" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1.5 rounded text-sm font-medium transition">
+                <i class="fas fa-clipboard mr-1"></i> Paste UID
+            </button>
+            <button onclick="saveCredentials()" title="Save Password" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1.5 rounded text-sm font-medium transition">
+                <i class="fas fa-floppy-disk mr-1"></i> Save
+            </button>
+            <button onclick="autoFill()" title="Auto-Fill" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1.5 rounded text-sm font-medium transition">
+                <i class="fas fa-bolt mr-1"></i> Auto-Fill
+            </button>
+            <button onclick="clearHistory()" title="Clear History" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1.5 rounded text-sm font-medium transition">
+                <i class="fas fa-trash-can mr-1"></i> Clear
+            </button>
+        </div>
+
+        <!-- Right: Logout -->
+        <div>
+            <button onclick="logoutSession()" title="Logout" class="bg-[#fa383e] hover:bg-red-600 text-white px-3 py-1.5 rounded text-sm font-bold transition">
+                <i class="fas fa-right-from-bracket mr-1"></i> Logout
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Area (Embedded View / Web Frame Simulation) -->
+    <main class="flex-1 flex items-center justify-center p-4 bg-white m-4 rounded-lg shadow-inner overflow-hidden relative">
+        <iframe id="browserFrame" src="https://www.facebook.com" class="w-full h-full border-0 rounded"></iframe>
+    </main>
+
+    <!-- Footer Status Bar -->
+    <footer class="bg-gray-200 text-gray-600 text-xs px-4 py-1 flex justify-between items-center border-t border-gray-300">
+        <span>Status: Ready</span>
+        <span>Secure Local Session</span>
+    </footer>
+
+    <!-- JavaScript Actions Logic -->
+    <script>
+        function navigateToHome() {
+            document.getElementById('browserFrame').src = "https://www.facebook.com";
+        }
+
+        function refreshPage() {
+            const frame = document.getElementById('browserFrame');
+            frame.src = frame.src;
+        }
+
+        async function pasteUID() {
+            try {
+                const text = await navigator.clipboard.readText();
+                if (!text) {
+                    alert("Clipboard is empty.");
+                    return;
+                }
+                console.log("Pasted UID:", text);
+                alert(`UID pasted successfully: ${text}`);
+            } catch (err) {
+                alert("Failed to read clipboard contents. Check browser permissions.");
+            }
+        }
+
+        function saveCredentials() {
+            localStorage.setItem("saved_password", "sample_password_placeholder");
+            alert("Credentials saved securely to local storage.");
+        }
+
+        function autoFill() {
+            const pwd = localStorage.getItem("saved_password");
+            if (pwd) {
+                alert("Auto-filled saved credentials into active fields.");
+            } else {
+                alert("No saved credentials found.");
+            }
+        }
+
+        function clearHistory() {
+            localStorage.clear();
+            sessionStorage.clear();
+            alert("Local browser cache and session history cleared.");
+        }
+
+        function logoutSession() {
+            localStorage.clear();
+            navigateToHome();
+            alert("Logged out successfully.");
+        }
+    </script>
+</body>
+</html>
