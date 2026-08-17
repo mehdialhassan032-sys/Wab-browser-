@@ -182,19 +182,35 @@
       gap: 16px;
     }
 
-    .app-icon-box {
-      width: 36px;
-      height: 36px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    .app-icon-wrapper {
+      position: relative;
+      cursor: pointer;
     }
 
     .app-icon {
-      width: 32px;
-      height: 32px;
-      object-fit: contain;
-      border-radius: 6px;
+      width: 34px;
+      height: 34px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+
+    .upload-btn-overlay {
+      display: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 34px;
+      height: 34px;
+      background: rgba(0,0,0,0.5);
+      border-radius: 8px;
+      color: #fff;
+      font-size: 10px;
+      text-align: center;
+      line-height: 34px;
+    }
+
+    .app-icon-wrapper:hover .upload-btn-overlay {
+      display: block;
     }
 
     .app-name {
@@ -331,8 +347,10 @@
       
       <div class="app-item">
         <div class="app-left">
-          <div class="app-icon-box">
-            <img class="app-icon" src="https://logo.clearbit.com/instagram.com" onerror="this.src='https://www.google.com/s2/favicons?domain=instagram.com&sz=64'" alt="icon">
+          <div class="app-icon-wrapper" onclick="triggerFileInput(this)" title="Click to Upload Custom Logo">
+            <img class="app-icon" src="https://unavatar.io/instagram.com" onerror="fallbackLogo(this, 'instagram.com')" alt="icon">
+            <div class="upload-btn-overlay">📁</div>
+            <input type="file" accept="image/*" style="display:none" onchange="loadCustomIcon(event, this)">
           </div>
           <div>
             <div class="app-name" contenteditable="true" onblur="fetchLogo(this)">Instagram</div>
@@ -369,43 +387,20 @@
   </div>
 
   <script>
-    // Universal App Domain Mapping
-    const knownDomains = {
-      // Social & Messaging
-      'whatsapp': 'whatsapp.com',
+    const appMapping = {
+      'freefire': 'ff.garena.com',
+      'freefiremax': 'ff.garena.com',
+      'bgmi': 'battlegroundsmobileindia.com',
+      'pubg': 'pubgmobile.com',
       'telegram': 'telegram.org',
+      'whatsapp': 'whatsapp.com',
       'snapchat': 'snapchat.com',
       'instagram': 'instagram.com',
-      'facebook': 'facebook.com',
-      'messenger': 'messenger.com',
-      'twitter': 'x.com',
-      'x': 'x.com',
-      'linkedin': 'linkedin.com',
-      'pinterest': 'pinterest.com',
-      'reddit': 'reddit.com',
-      
-      // Video & Streaming
       'youtube': 'youtube.com',
-      'netflix': 'netflix.com',
-      'primevideo': 'primevideo.com',
-      'spotify': 'spotify.com',
-      'hotstar': 'hotstar.com',
-      'twitch': 'twitch.tv',
-      
-      // Google Services & Utility
       'chrome': 'google.com',
-      'gmail': 'gmail.com',
-      'drive': 'drive.google.com',
-      'photos': 'photos.google.com',
-      'maps': 'maps.google.com',
-      'paytm': 'paytm.com',
-      'phonepe': 'phonepe.com',
-      'gpay': 'pay.google.com',
-      
-      // Games & Others
-      'freefire': 'ff.garena.com',
-      'bgmi': 'battlegroundsmobileindia.com',
-      'pubg': 'pubgmobile.com'
+      'facebook': 'facebook.com',
+      'gallery': 'photos.google.com',
+      'photos': 'photos.google.com'
     };
 
     function adjustBarByHours(barId, hoursVal) {
@@ -418,24 +413,43 @@
     }
 
     function fetchLogo(element) {
-      let rawText = element.innerText.trim().toLowerCase();
-      let cleanName = rawText.replace(/[^a-z0-9]/g, '');
-      const img = element.closest('.app-left').querySelector('.app-icon');
-      
-      if (!cleanName) return;
+      let text = element.innerText.trim().toLowerCase();
+      let cleanKey = text.replace(/[^a-z0-9]/g, '');
+      const wrapper = element.closest('.app-left').querySelector('.app-icon-wrapper');
+      const img = wrapper.querySelector('.app-icon');
 
-      // Smart domain resolution
-      let domain = knownDomains[cleanName] || (cleanName + '.com');
+      if (!cleanKey) return;
+
+      let domain = appMapping[cleanKey] || (cleanKey + '.com');
       
-      // High-resolution logo fetcher with fallbacks
-      img.src = `https://logo.clearbit.com/${domain}`;
+      img.src = `https://unavatar.io/${domain}`;
+      img.setAttribute('data-domain', domain);
+    }
+
+    function fallbackLogo(img, domain) {
+      if(!domain) domain = img.getAttribute('data-domain') || 'google.com';
       img.onerror = function() {
-        this.onerror = function() {
-          this.onerror = null;
-          this.src = `https://api.statvoo.com/favicon/?url=${domain}`;
-        };
-        this.src = `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
+        this.onerror = null;
+        this.src = `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
       };
+      img.src = `https://logo.clearbit.com/${domain}`;
+    }
+
+    function triggerFileInput(wrapper) {
+      wrapper.querySelector('input[type="file"]').click();
+    }
+
+    function loadCustomIcon(event, input) {
+      event.stopPropagation();
+      const file = input.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const img = input.previousElementSibling.previousElementSibling;
+          img.src = e.target.result;
+        }
+        reader.readAsDataURL(file);
+      }
     }
 
     function addNewApp() {
@@ -444,8 +458,10 @@
       div.className = 'app-item';
       div.innerHTML = `
         <div class="app-left">
-          <div class="app-icon-box">
-            <img class="app-icon" src="https://logo.clearbit.com/google.com" onerror="this.src='https://www.google.com/s2/favicons?domain=google.com&sz=64'" alt="icon">
+          <div class="app-icon-wrapper" onclick="triggerFileInput(this)" title="Click to Upload Custom Logo">
+            <img class="app-icon" src="https://unavatar.io/google.com" onerror="fallbackLogo(this, 'google.com')" alt="icon">
+            <div class="upload-btn-overlay">📁</div>
+            <input type="file" accept="image/*" style="display:none" onchange="loadCustomIcon(event, this)">
           </div>
           <div>
             <div class="app-name" contenteditable="true" onblur="fetchLogo(this)">App Name</div>
@@ -464,11 +480,18 @@
 
     function exportImage() {
       const area = document.getElementById('captureArea');
+      
+      // Hide upload overlay while capturing screenshot
+      const overlays = document.querySelectorAll('.upload-btn-overlay');
+      overlays.forEach(o => o.style.display = 'none');
+
       html2canvas(area, { scale: 3 }).then(canvas => {
         const link = document.createElement('a');
         link.download = 'screen-time-dashboard.png';
         link.href = canvas.toDataURL('image/png');
         link.click();
+        
+        overlays.forEach(o => o.style.display = '');
       });
     }
   </script>
