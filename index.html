@@ -3,12 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Screen Time Dashboard</title>
+  <title>Screen Time Dashboard - Final</title>
 
-  <!-- HTML2Canvas for Downloading Screenshot -->
+  <!-- HTML2Canvas & Cropper.js Libraries -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-
-  <!-- Cropper.js for Manual Mode -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css"/>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 
@@ -58,6 +56,15 @@
       margin-bottom: 24px;
     }
 
+    /* Font Targets */
+    #titleText {
+      font-size: 30px;
+      font-weight: 400;
+      margin-bottom: 24px;
+      color: #1f1f1f;
+      line-height: 1.2;
+    }
+
     .center-info {
       text-align: center;
       margin-bottom: 24px;
@@ -74,10 +81,11 @@
       margin-bottom: 16px;
     }
 
-    .total-time {
-      font-size: 38px;
+    #timeText {
+      font-size: 44px;
       font-weight: 400;
       letter-spacing: -0.5px;
+      color: #1f1f1f;
     }
 
     .sub-title {
@@ -237,6 +245,7 @@
     [contenteditable="true"] { outline: none; }
     [contenteditable="true"]:focus { background-color: #f0f4ff; }
 
+    /* Controls Styling */
     .controls-panel {
       margin-top: 20px;
       width: 360px;
@@ -245,6 +254,18 @@
       border-radius: 8px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
       box-sizing: border-box;
+    }
+
+    .slider-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 8px;
+      font-size: 13px;
+    }
+
+    .slider-row input[type="range"] {
+      width: 160px;
     }
 
     .btn {
@@ -263,7 +284,7 @@
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 6px;
-      margin-top: 10px;
+      margin-top: 8px;
       font-size: 12px;
     }
     .graph-controls input { width: 42px; }
@@ -283,7 +304,7 @@
       background: #f0f4ff;
       padding: 8px 12px;
       border-radius: 6px;
-      margin-bottom: 12px;
+      margin: 10px 0;
     }
     .switch {
       position: relative;
@@ -313,14 +334,15 @@
 </head>
 <body>
 
+  <!-- Screen Layout -->
   <div class="phone-screen" id="captureArea">
     <div class="status-bar">
-      <span contenteditable="true">3:21</span>
+      <span contenteditable="true">3:09</span>
       <div class="status-right">
         <span contenteditable="true">VoLTE</span>
-        <span contenteditable="true">0.50 KB/s</span>
+        <span contenteditable="true">6.60 KB/s</span>
         <span contenteditable="true">5G</span>
-        <span contenteditable="true">◯ 88%</span>
+        <span contenteditable="true">◯ 90%</span>
       </div>
     </div>
 
@@ -329,11 +351,11 @@
       <span style="font-size: 18px;" contenteditable="true">⋮</span>
     </div>
 
-    <div style="font-size: 24px; font-weight: 400; margin-bottom: 24px;" contenteditable="true">App activity details</div>
+    <div id="titleText" contenteditable="true">App activity details</div>
 
     <div class="center-info">
       <div class="badge" contenteditable="true">Screen time ▼</div>
-      <div class="total-time" contenteditable="true">14 hr, 21 min</div>
+      <div id="timeText" contenteditable="true">14 hr, 21 min</div>
       <div class="sub-title" contenteditable="true">Yesterday</div>
     </div>
 
@@ -392,8 +414,21 @@
     </div>
   </div>
 
+  <!-- Dashboard Controls -->
   <div class="controls-panel">
-    <strong>Bar Height Controls (Hours: 0h to 15h)</strong>
+    <strong>Font Size Adjuster</strong>
+    <div class="slider-row">
+      <span>Title Size:</span>
+      <input type="range" min="18" max="42" value="30" oninput="changeFontSize('titleText', this.value)">
+    </div>
+    <div class="slider-row">
+      <span>Time Size:</span>
+      <input type="range" min="24" max="60" value="44" oninput="changeFontSize('timeText', this.value)">
+    </div>
+
+    <hr style="margin: 12px 0;">
+
+    <strong>Bar Height Controls (0h to 15h)</strong>
     <div class="graph-controls">
       <span>Sun: <input type="number" step="0.5" max="15" min="0" value="14.3" onchange="adjustBarByHours('bar-sun', this.value)">h</span>
       <span>Mon: <input type="number" step="0.5" max="15" min="0" value="7.2" onchange="adjustBarByHours('bar-mon', this.value)">h</span>
@@ -403,11 +438,11 @@
       <span>Fri: <input type="number" step="0.5" max="15" min="0" value="0" onchange="adjustBarByHours('bar-fri', this.value)">h</span>
       <span>Sat: <input type="number" step="0.5" max="15" min="0" value="0" onchange="adjustBarByHours('bar-sat', this.value)">h</span>
     </div>
-    
+
     <hr style="margin: 12px 0;">
     
     <div class="ai-switch-container">
-      <span style="font-size: 13px; font-weight: bold; color: #1a1a1a;">⚡ Smart Auto Crop Logo:</span>
+      <span style="font-size: 13px; font-weight: bold;">⚡ Smart Auto Crop Logo:</span>
       <label class="switch">
         <input type="checkbox" id="aiToggle" checked>
         <span class="slider"></span>
@@ -430,7 +465,7 @@
     </div>
   </div>
 
-  <!-- Manual Cropper Modal -->
+  <!-- Cropper Modal -->
   <div class="crop-modal" id="cropModal">
     <div class="crop-container">
       <img id="cropperImage" src="" style="max-width: 100%;">
@@ -445,6 +480,10 @@
     let appCount = 1;
     let cropper = null;
     let activeTargetImgId = null;
+
+    function changeFontSize(elementId, size) {
+      document.getElementById(elementId).style.fontSize = size + 'px';
+    }
 
     function adjustBarByHours(barId, hoursVal) {
       let hours = parseFloat(hoursVal);
@@ -467,7 +506,6 @@
       }
     }
 
-    // Direct Pixel-Density Scanning to crop EXACT Logo
     function autoCropLogo(file, targetImgId) {
       const reader = new FileReader();
       reader.onload = function(e) {
@@ -486,13 +524,11 @@
           let minX = canvas.width, minY = canvas.height, maxX = 0, maxY = 0;
           let found = false;
 
-          // Scanning non-transparent and non-white pixels
           for (let y = 0; y < canvas.height; y++) {
             for (let x = 0; x < canvas.width; x++) {
               const i = (y * canvas.width + x) * 4;
               const r = data[i], g = data[i+1], b = data[i+2], a = data[i+3];
 
-              // Filter out transparent and pure background color pixels
               if (a > 20 && !(r > 240 && g > 240 && b > 240)) {
                 if (x < minX) minX = x;
                 if (x > maxX) maxX = x;
