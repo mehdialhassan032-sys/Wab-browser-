@@ -182,35 +182,11 @@
       gap: 16px;
     }
 
-    .app-icon-wrapper {
-      position: relative;
-      cursor: pointer;
-    }
-
     .app-icon {
       width: 34px;
       height: 34px;
-      object-fit: cover;
+      object-fit: contain;
       border-radius: 8px;
-    }
-
-    .upload-btn-overlay {
-      display: none;
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 34px;
-      height: 34px;
-      background: rgba(0,0,0,0.5);
-      border-radius: 8px;
-      color: #fff;
-      font-size: 10px;
-      text-align: center;
-      line-height: 34px;
-    }
-
-    .app-icon-wrapper:hover .upload-btn-overlay {
-      display: block;
     }
 
     .app-name {
@@ -248,6 +224,7 @@
     [contenteditable="true"] { outline: none; }
     [contenteditable="true"]:focus { background-color: #f0f4ff; }
 
+    /* Control Panel & Dedicated Upload Section */
     .controls-panel {
       margin-top: 20px;
       width: 360px;
@@ -268,6 +245,11 @@
       cursor: pointer;
     }
     .btn-add { background: #2e7d32; }
+    .btn-upload {
+      background: #6c757d;
+      font-size: 11px;
+      padding: 4px 8px;
+    }
 
     .graph-controls {
       display: grid;
@@ -278,6 +260,14 @@
     }
     .graph-controls input {
       width: 42px;
+    }
+
+    .upload-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 8px;
+      font-size: 13px;
     }
   </style>
 </head>
@@ -345,15 +335,11 @@
 
     <div class="app-list" id="appList">
       
-      <div class="app-item">
+      <div class="app-item" id="app-item-0">
         <div class="app-left">
-          <div class="app-icon-wrapper" onclick="triggerFileInput(this)" title="Click to Upload Custom Logo">
-            <img class="app-icon" src="https://unavatar.io/instagram.com" onerror="fallbackLogo(this, 'instagram.com')" alt="icon">
-            <div class="upload-btn-overlay">📁</div>
-            <input type="file" accept="image/*" style="display:none" onchange="loadCustomIcon(event, this)">
-          </div>
+          <img class="app-icon" id="img-0" src="https://www.google.com/s2/favicons?domain=instagram.com&sz=128" alt="icon">
           <div>
-            <div class="app-name" contenteditable="true" onblur="fetchLogo(this)">Instagram</div>
+            <div class="app-name" contenteditable="true" oninput="syncUploadList()">Instagram</div>
             <div class="app-time" contenteditable="true">10 hr, 14 min</div>
           </div>
         </div>
@@ -379,7 +365,19 @@
       <span>Fri: <input type="number" step="0.5" max="15" min="0" value="0" onchange="adjustBarByHours('bar-fri', this.value)">h</span>
       <span>Sat: <input type="number" step="0.5" max="15" min="0" value="0" onchange="adjustBarByHours('bar-sat', this.value)">h</span>
     </div>
+    
     <hr style="margin: 12px 0;">
+    
+    <strong>Manual Logo Upload Controls</strong>
+    <div id="uploadList">
+      <div class="upload-row">
+        <span>App 1 Logo:</span>
+        <input type="file" accept="image/*" onchange="uploadLogo(event, 'img-0')">
+      </div>
+    </div>
+
+    <hr style="margin: 12px 0;">
+
     <div style="display: flex; gap: 8px;">
       <button class="btn btn-add" onclick="addNewApp()">+ Add App</button>
       <button class="btn" onclick="exportImage()">Download Image</button>
@@ -387,21 +385,7 @@
   </div>
 
   <script>
-    const appMapping = {
-      'freefire': 'ff.garena.com',
-      'freefiremax': 'ff.garena.com',
-      'bgmi': 'battlegroundsmobileindia.com',
-      'pubg': 'pubgmobile.com',
-      'telegram': 'telegram.org',
-      'whatsapp': 'whatsapp.com',
-      'snapchat': 'snapchat.com',
-      'instagram': 'instagram.com',
-      'youtube': 'youtube.com',
-      'chrome': 'google.com',
-      'facebook': 'facebook.com',
-      'gallery': 'photos.google.com',
-      'photos': 'photos.google.com'
-    };
+    let appCount = 1;
 
     function adjustBarByHours(barId, hoursVal) {
       let hours = parseFloat(hoursVal);
@@ -412,59 +396,30 @@
       document.getElementById(barId).style.height = percentage + '%';
     }
 
-    function fetchLogo(element) {
-      let text = element.innerText.trim().toLowerCase();
-      let cleanKey = text.replace(/[^a-z0-9]/g, '');
-      const wrapper = element.closest('.app-left').querySelector('.app-icon-wrapper');
-      const img = wrapper.querySelector('.app-icon');
-
-      if (!cleanKey) return;
-
-      let domain = appMapping[cleanKey] || (cleanKey + '.com');
-      
-      img.src = `https://unavatar.io/${domain}`;
-      img.setAttribute('data-domain', domain);
-    }
-
-    function fallbackLogo(img, domain) {
-      if(!domain) domain = img.getAttribute('data-domain') || 'google.com';
-      img.onerror = function() {
-        this.onerror = null;
-        this.src = `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
-      };
-      img.src = `https://logo.clearbit.com/${domain}`;
-    }
-
-    function triggerFileInput(wrapper) {
-      wrapper.querySelector('input[type="file"]').click();
-    }
-
-    function loadCustomIcon(event, input) {
-      event.stopPropagation();
-      const file = input.files[0];
+    function uploadLogo(event, imgId) {
+      const file = event.target.files[0];
       if (file) {
         const reader = new FileReader();
         reader.onload = function(e) {
-          const img = input.previousElementSibling.previousElementSibling;
-          img.src = e.target.result;
+          document.getElementById(imgId).src = e.target.result;
         }
         reader.readAsDataURL(file);
       }
     }
 
     function addNewApp() {
+      const currentId = appCount;
+      appCount++;
+
       const container = document.getElementById('appList');
       const div = document.createElement('div');
       div.className = 'app-item';
+      div.id = `app-item-${currentId}`;
       div.innerHTML = `
         <div class="app-left">
-          <div class="app-icon-wrapper" onclick="triggerFileInput(this)" title="Click to Upload Custom Logo">
-            <img class="app-icon" src="https://unavatar.io/google.com" onerror="fallbackLogo(this, 'google.com')" alt="icon">
-            <div class="upload-btn-overlay">📁</div>
-            <input type="file" accept="image/*" style="display:none" onchange="loadCustomIcon(event, this)">
-          </div>
+          <img class="app-icon" id="img-${currentId}" src="https://www.google.com/s2/favicons?domain=google.com&sz=128" alt="icon">
           <div>
-            <div class="app-name" contenteditable="true" onblur="fetchLogo(this)">App Name</div>
+            <div class="app-name" contenteditable="true">New App</div>
             <div class="app-time" contenteditable="true">0 minutes</div>
           </div>
         </div>
@@ -476,22 +431,25 @@
         </div>
       `;
       container.appendChild(div);
+
+      // Add Upload Row to Control Panel
+      const uploadContainer = document.getElementById('uploadList');
+      const uploadRow = document.createElement('div');
+      uploadRow.className = 'upload-row';
+      uploadRow.innerHTML = `
+        <span>App ${currentId + 1} Logo:</span>
+        <input type="file" accept="image/*" onchange="uploadLogo(event, 'img-${currentId}')">
+      `;
+      uploadContainer.appendChild(uploadRow);
     }
 
     function exportImage() {
       const area = document.getElementById('captureArea');
-      
-      // Hide upload overlay while capturing screenshot
-      const overlays = document.querySelectorAll('.upload-btn-overlay');
-      overlays.forEach(o => o.style.display = 'none');
-
       html2canvas(area, { scale: 3 }).then(canvas => {
         const link = document.createElement('a');
         link.download = 'screen-time-dashboard.png';
         link.href = canvas.toDataURL('image/png');
         link.click();
-        
-        overlays.forEach(o => o.style.display = '');
       });
     }
   </script>
