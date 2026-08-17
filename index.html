@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Screen Time Dashboard - Final</title>
+  <title>Screen Time Dashboard - Fixed Font Controls</title>
 
-  <!-- HTML2Canvas & Cropper.js Libraries -->
+  <!-- Libraries -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css"/>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
@@ -56,9 +56,9 @@
       margin-bottom: 24px;
     }
 
-    /* Font Targets */
+    /* Font Targets with IDs */
     #titleText {
-      font-size: 30px;
+      font-size: 28px;
       font-weight: 400;
       margin-bottom: 24px;
       color: #1f1f1f;
@@ -82,10 +82,12 @@
     }
 
     #timeText {
-      font-size: 44px;
+      font-size: 38px;
       font-weight: 400;
       letter-spacing: -0.5px;
       color: #1f1f1f;
+      line-height: 1.1;
+      margin: 8px 0;
     }
 
     .sub-title {
@@ -416,14 +418,14 @@
 
   <!-- Dashboard Controls -->
   <div class="controls-panel">
-    <strong>Font Size Adjuster</strong>
+    <strong>Live Font Size Adjuster</strong>
     <div class="slider-row">
-      <span>Title Size:</span>
-      <input type="range" min="18" max="42" value="30" oninput="changeFontSize('titleText', this.value)">
+      <span>Title Size: <b id="titleVal">28px</b></span>
+      <input type="range" min="16" max="50" value="28" oninput="changeFontSize('titleText', this.value, 'titleVal')">
     </div>
     <div class="slider-row">
-      <span>Time Size:</span>
-      <input type="range" min="24" max="60" value="44" oninput="changeFontSize('timeText', this.value)">
+      <span>Time Size: <b id="timeVal">38px</b></span>
+      <input type="range" min="20" max="70" value="38" oninput="changeFontSize('timeText', this.value, 'timeVal')">
     </div>
 
     <hr style="margin: 12px 0;">
@@ -481,8 +483,13 @@
     let cropper = null;
     let activeTargetImgId = null;
 
-    function changeFontSize(elementId, size) {
-      document.getElementById(elementId).style.fontSize = size + 'px';
+    // Direct Font Sizing (Guaranteed Fix)
+    function changeFontSize(elementId, size, displayId) {
+      const el = document.getElementById(elementId);
+      if(el) {
+        el.style.fontSize = size + 'px';
+        document.getElementById(displayId).innerText = size + 'px';
+      }
     }
 
     function adjustBarByHours(barId, hoursVal) {
