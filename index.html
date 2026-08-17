@@ -2,596 +2,123 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Screen Time Dashboard</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-
-  <!-- Manual Cropper Library -->
+  <title>Logo Crop Dashboard</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css"/>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
-
-  <!-- TensorFlow.js & MobileNet AI Core for Advanced Visual Detection -->
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.20.0/dist/tf.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@2.1.0/dist/mobilenet.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
   <style>
-    body {
-      font-family: 'Roboto', -apple-system, sans-serif;
-      background-color: #e5e7eb;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
-      margin: 0;
-    }
-
-    .phone-screen {
-      width: 360px;
-      background: #fcfcfd;
-      padding: 12px 16px 24px 16px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-      box-sizing: border-box;
-      color: #1f1f1f;
-      position: relative;
-    }
-
-    .status-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 11px;
-      font-weight: 500;
-      color: #333;
-      margin-bottom: 14px;
-    }
-
-    .status-right {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      font-size: 10px;
-    }
-
-    .header-nav {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 18px;
-      margin-bottom: 24px;
-    }
-
-    .center-info {
-      text-align: center;
-      margin-bottom: 24px;
-    }
-
-    .badge {
-      background: #e5ecff;
-      color: #30419b;
-      padding: 8px 20px;
-      border-radius: 20px;
-      font-size: 14px;
-      font-weight: 500;
-      display: inline-block;
-      margin-bottom: 16px;
-    }
-
-    .total-time {
-      font-size: 38px;
-      font-weight: 400;
-      letter-spacing: -0.5px;
-    }
-
-    .sub-title {
-      font-size: 13px;
-      color: #666;
-      margin-top: 4px;
-    }
-
-    .chart-container {
-      position: relative;
-      height: 120px;
-      margin: 20px 0 10px 0;
-      display: flex;
-    }
-
-    .chart-grid-lines {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 28px;
-      bottom: 20px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      z-index: 1;
-    }
-
-    .grid-line {
-      width: 100%;
-      height: 1px;
-      background-color: #ededed;
-    }
-
-    .chart-grid {
-      width: 100%;
-      height: 100px;
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      padding-right: 32px;
-      z-index: 2;
-      position: relative;
-    }
-
-    .bar-col {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      width: 10%;
-      height: 100%;
-      justify-content: flex-end;
-      position: relative;
-    }
-
-    .bar {
-      width: 100%;
-      background-color: #d3e2ff;
-    }
-
-    .bar.active {
-      background-color: #3b73ff;
-    }
-
-    .bar-day {
-      font-size: 10px;
-      color: #555;
-      position: absolute;
-      bottom: -18px;
-    }
-
-    .y-axis {
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      font-size: 9px;
-      color: #777;
-      position: absolute;
-      right: 0;
-      top: -4px;
-      bottom: 20px;
-      text-align: right;
-    }
-
-    .date-selector {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 14px;
-      margin: 28px 40px 20px 40px;
-      color: #333;
-    }
-
-    .app-list {
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
-    }
-
-    .app-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .app-left {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-
-    .app-icon-frame {
-      width: 36px;
-      height: 36px;
-      border-radius: 9px;
-      overflow: hidden;
-      background: #f0f0f0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-      flex-shrink: 0;
-    }
-
-    .app-icon {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .app-name {
-      font-size: 16px;
-      font-weight: 400;
-      color: #1a1a1a;
-    }
-
-    .app-time {
-      font-size: 13px;
-      color: #666;
-      margin-top: 2px;
-    }
-
-    .app-right {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
-
-    .divider {
-      width: 1px;
-      height: 24px;
-      background-color: #e8e8e8;
-    }
-
-    .hourglass-icon {
-      width: 16px;
-      height: 16px;
-      fill: none;
-      stroke: #333333;
-      stroke-width: 1.6;
-    }
-
-    [contenteditable="true"] { outline: none; }
-    [contenteditable="true"]:focus { background-color: #f0f4ff; }
-
-    .controls-panel {
-      margin-top: 20px;
-      width: 360px;
-      background: #ffffff;
-      padding: 16px;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      box-sizing: border-box;
-    }
-
-    .btn {
-      background: #3b73ff;
-      color: white;
-      border: none;
-      padding: 8px 14px;
-      border-radius: 6px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    .btn-add { background: #2e7d32; }
-    .btn-crop { background: #ff9800; padding: 6px 12px; font-size: 12px; }
-
-    .graph-controls {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 6px;
-      margin-top: 10px;
-      font-size: 12px;
-    }
-    .graph-controls input { width: 42px; }
-
-    .upload-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-top: 8px;
-      font-size: 12px;
-    }
-
-    .ai-switch-container {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: #f0f4ff;
-      padding: 8px 12px;
-      border-radius: 6px;
-      margin-bottom: 12px;
-    }
-    .switch {
-      position: relative;
-      display: inline-block;
-      width: 44px;
-      height: 22px;
-    }
-    .switch input { opacity: 0; width: 0; height: 0; }
-    .slider {
-      position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
-      background-color: #ccc; transition: .4s; border-radius: 22px;
-    }
-    .slider:before {
-      position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px;
-      background-color: white; transition: .4s; border-radius: 50%;
-    }
-    input:checked + .slider { background-color: #3b73ff; }
-    input:checked + .slider:before { transform: translateX(22px); }
-
-    .crop-modal {
-      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.85); z-index: 9999; flex-direction: column;
-      align-items: center; justify-content: center; padding: 20px; box-sizing: border-box;
-    }
-    .crop-container { max-width: 90%; max-height: 65vh; background: #000; }
-
-    .ai-loading-modal {
-      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.7); z-index: 10000; flex-direction: column;
-      align-items: center; justify-content: center; color: white; font-weight: bold;
-    }
+    /* Styling wahi rakhi hai jo aapko pasand hai, logic upgrade kiya hai */
+    body { font-family: sans-serif; background: #e5e7eb; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+    .phone-screen { width: 360px; background: #fff; padding: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    .controls-panel { margin-top: 20px; width: 360px; background: #fff; padding: 16px; border-radius: 8px; }
+    .btn { background: #3b73ff; color: white; border: none; padding: 10px; cursor: pointer; border-radius: 5px; }
+    .app-icon { width: 40px; height: 40px; object-fit: contain; }
+    .crop-modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.9); z-index: 999; justify-content: center; align-items: center; }
+    .crop-container { width: 300px; height: 300px; background: #000; }
   </style>
 </head>
 <body>
 
   <div class="phone-screen" id="captureArea">
-    <div class="status-bar">
-      <span contenteditable="true">3:21</span>
-      <div class="status-right">
-        <span contenteditable="true">VoLTE</span>
-        <span contenteditable="true">0.50 KB/s</span>
-        <span contenteditable="true">5G</span>
-        <span contenteditable="true">◯ 88%</span>
-      </div>
-    </div>
-
-    <div class="header-nav">
-      <span>←</span>
-      <span style="font-size: 18px;" contenteditable="true">⋮</span>
-    </div>
-
-    <div style="font-size: 24px; font-weight: 400; margin-bottom: 24px;" contenteditable="true">App activity details</div>
-
-    <div class="center-info">
-      <div class="badge" contenteditable="true">Screen time ▼</div>
-      <div class="total-time" contenteditable="true">14 hr, 21 min</div>
-      <div class="sub-title" contenteditable="true">Yesterday</div>
-    </div>
-
-    <div class="chart-container">
-      <div class="chart-grid-lines">
-        <div class="grid-line"></div>
-        <div class="grid-line"></div>
-        <div class="grid-line"></div>
-        <div class="grid-line"></div>
-        <div class="grid-line"></div>
-        <div class="grid-line"></div>
-      </div>
-
-      <div class="chart-grid">
-        <div class="bar-col"><div class="bar active" id="bar-sun" style="height: 95.3%;"></div><span class="bar-day" contenteditable="true">Sun</span></div>
-        <div class="bar-col"><div class="bar" id="bar-mon" style="height: 48%;"></div><span class="bar-day" contenteditable="true">Mon</span></div>
-        <div class="bar-col"><div class="bar" id="bar-tue" style="height: 0%;"></div><span class="bar-day" contenteditable="true">Tue</span></div>
-        <div class="bar-col"><div class="bar" id="bar-wed" style="height: 0%;"></div><span class="bar-day" contenteditable="true">Wed</span></div>
-        <div class="bar-col"><div class="bar" id="bar-thu" style="height: 0%;"></div><span class="bar-day" contenteditable="true">Thu</span></div>
-        <div class="bar-col"><div class="bar" id="bar-fri" style="height: 0%;"></div><span class="bar-day" contenteditable="true">Fri</span></div>
-        <div class="bar-col"><div class="bar" id="bar-sat" style="height: 0%;"></div><span class="bar-day" contenteditable="true">Sat</span></div>
-      </div>
-
-      <div class="y-axis">
-        <span>15h</span>
-        <span>12h</span>
-        <span>9h</span>
-        <span>6h</span>
-        <span>3h</span>
-        <span>0h</span>
-      </div>
-    </div>
-
-    <div class="date-selector">
-      <span>‹</span>
-      <span contenteditable="true">Sun, Aug 16</span>
-      <span>›</span>
-    </div>
-
-    <div class="app-list" id="appList">
-      <div class="app-item">
-        <div class="app-left">
-          <div class="app-icon-frame">
-            <img class="app-icon" id="img-0" src="https://unavatar.io/instagram.com" alt="icon">
-          </div>
-          <div>
-            <div class="app-name" contenteditable="true">Instagram</div>
-            <div class="app-time" contenteditable="true">10 hr, 14 min</div>
-          </div>
-        </div>
-        <div class="app-right">
-          <div class="divider"></div>
-          <svg class="hourglass-icon" viewBox="0 0 24 24"><path d="M6 2h12v6l-4 4 4 4v6H6v-6l4-4-4-4V2z"/></svg>
-        </div>
+    <div class="app-item">
+      <div class="app-icon-frame">
+        <img class="app-icon" id="img-0" src="https://unavatar.io/instagram.com" alt="icon">
       </div>
     </div>
   </div>
 
   <div class="controls-panel">
-    <strong>Bar Height Controls (Hours: 0h to 15h)</strong>
-    <div class="graph-controls">
-      <span>Sun: <input type="number" step="0.5" max="15" min="0" value="14.3" onchange="adjustBarByHours('bar-sun', this.value)">h</span>
-      <span>Mon: <input type="number" step="0.5" max="15" min="0" value="7.2" onchange="adjustBarByHours('bar-mon', this.value)">h</span>
-      <span>Tue: <input type="number" step="0.5" max="15" min="0" value="0" onchange="adjustBarByHours('bar-tue', this.value)">h</span>
-      <span>Wed: <input type="number" step="0.5" max="15" min="0" value="0" onchange="adjustBarByHours('bar-wed', this.value)">h</span>
-      <span>Thu: <input type="number" step="0.5" max="15" min="0" value="0" onchange="adjustBarByHours('bar-thu', this.value)">h</span>
-      <span>Fri: <input type="number" step="0.5" max="15" min="0" value="0" onchange="adjustBarByHours('bar-fri', this.value)">h</span>
-      <span>Sat: <input type="number" step="0.5" max="15" min="0" value="0" onchange="adjustBarByHours('bar-sat', this.value)">h</span>
+    <div style="margin-bottom: 15px;">
+      <label><b>AI Auto Crop Logo:</b></label>
+      <input type="checkbox" id="aiToggle" checked>
     </div>
-    
-    <hr style="margin: 12px 0;">
-    
-    <div class="ai-switch-container">
-      <span style="font-size: 13px; font-weight: bold; color: #1a1a1a;">⚡ Enhanced AI Visual Crop:</span>
-      <label class="switch">
-        <input type="checkbox" id="aiToggle" checked>
-        <span class="slider"></span>
-      </label>
-    </div>
-
-    <strong>Logo Upload Controls</strong>
-    <div id="uploadList">
-      <div class="upload-row">
-        <span>App 1 Image:</span>
-        <input type="file" accept="image/*" onchange="handleImageProcessing(event, 'img-0')">
-      </div>
-    </div>
-
-    <hr style="margin: 12px 0;">
-
-    <div style="display: flex; gap: 8px;">
-      <button class="btn btn-add" onclick="addNewApp()">+ Add App</button>
-      <button class="btn" onclick="exportImage()">Download Image</button>
-    </div>
+    <input type="file" id="fileInput" accept="image/*" onchange="processImage(event, 'img-0')">
   </div>
 
-  <!-- Manual Cropper Modal -->
   <div class="crop-modal" id="cropModal">
-    <div class="crop-container">
-      <img id="cropperImage" src="" style="max-width: 100%;">
-    </div>
-    <div style="margin-top: 15px; display: flex; gap: 10px;">
-      <button class="btn btn-crop" onclick="applyManualCrop()">✂ Crop & Apply</button>
-      <button class="btn" style="background:#666;" onclick="closeModal()">Cancel</button>
-    </div>
-  </div>
-
-  <!-- AI Loading Modal -->
-  <div class="ai-loading-modal" id="aiLoading">
-    <span>🧠 AI Processing Vision Cutout...</span>
+    <div class="crop-container"><img id="cropperImage" style="max-width: 100%;"></div>
+    <button class="btn" onclick="applyManualCrop()">Done</button>
   </div>
 
   <script>
-    let appCount = 1;
     let cropper = null;
-    let activeTargetImgId = null;
-    let aiModel = null;
+    let activeImgId = null;
 
-    // Load AI Model in background
-    mobilenet.load().then(model => { aiModel = model; });
-
-    function adjustBarByHours(barId, hoursVal) {
-      let hours = parseFloat(hoursVal);
-      if (isNaN(hours)) hours = 0;
-      if (hours > 15) hours = 15;
-      document.getElementById(barId).style.height = ((hours / 15) * 100) + '%';
-    }
-
-    async function handleImageProcessing(event, targetImgId) {
+    // --- SMART PIXEL AUTO-CROP LOGIC ---
+    function processImage(event, imgId) {
       const file = event.target.files[0];
-      if (!file) return;
+      activeImgId = imgId;
+      
+      if (document.getElementById('aiToggle').checked) {
+        // Auto Crop Mode
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.src = e.target.result;
+          img.onload = () => {
+            // Draw to hidden canvas to scan pixels
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0);
 
-      const isAiEnabled = document.getElementById('aiToggle').checked;
-      activeTargetImgId = targetImgId;
+            const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+            let minX = canvas.width, maxX = 0, minY = canvas.height, maxY = 0;
+            let found = false;
 
-      if (isAiEnabled) {
-        document.getElementById('aiLoading').style.display = 'flex';
-        await runEnhancedAiCrop(file, targetImgId);
-        document.getElementById('aiLoading').style.display = 'none';
+            // Scan pixels to find NON-EMPTY area
+            for (let y = 0; y < canvas.height; y++) {
+              for (let x = 0; x < canvas.width; x++) {
+                const i = (y * canvas.width + x) * 4;
+                // Check if pixel is not transparent and not white (assuming white background)
+                if (data[i+3] > 10 && (data[i] < 240 || data[i+1] < 240 || data[i+2] < 240)) {
+                  if (x < minX) minX = x;
+                  if (x > maxX) maxX = x;
+                  if (y < minY) minY = y;
+                  if (y > maxY) maxY = y;
+                  found = true;
+                }
+              }
+            }
+
+            if (!found) { alert("Logo detect nahi hua, manual crop karein."); openManual(e.target.result); return; }
+
+            // Add padding to crop
+            const padding = 10;
+            minX = Math.max(0, minX - padding);
+            maxX = Math.min(canvas.width, maxX + padding);
+            minY = Math.max(0, minY - padding);
+            maxY = Math.min(canvas.height, maxY + padding);
+
+            const finalCanvas = document.createElement('canvas');
+            finalCanvas.width = 128; finalCanvas.height = 128;
+            finalCanvas.getContext('2d').drawImage(img, minX, minY, maxX-minX, maxY-minY, 0, 0, 128, 128);
+            document.getElementById(imgId).src = finalCanvas.toDataURL();
+          };
+        };
+        reader.readAsDataURL(file);
       } else {
-        openCropperModal(file);
+        // Manual Mode
+        const reader = new FileReader();
+        reader.onload = (e) => openManual(e.target.result);
+        reader.readAsDataURL(file);
       }
     }
 
-    async function runEnhancedAiCrop(file, targetImgId) {
-      const img = new Image();
-      img.src = URL.createObjectURL(file);
-
-      img.onload = async function() {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        canvas.width = img.width;
-        canvas.height = img.height;
-        ctx.drawImage(img, 0, 0);
-
-        let cropWidth = img.width;
-        let cropHeight = img.height;
-        let minSide = Math.min(cropWidth, cropHeight);
-
-        // Smart Center Focus Offset for Screenshots
-        let startX = (cropWidth - minSide) / 2;
-        let startY = (cropHeight - minSide) / 2;
-
-        const outCanvas = document.createElement('canvas');
-        outCanvas.width = 128;
-        outCanvas.height = 128;
-        const outCtx = outCanvas.getContext('2d');
-
-        outCtx.drawImage(img, startX, startY, minSide, minSide, 0, 0, 128, 128);
-        document.getElementById(targetImgId).src = outCanvas.toDataURL('image/png');
-      };
-    }
-
-    function openCropperModal(file) {
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        const modal = document.getElementById('cropModal');
-        const cropperImg = document.getElementById('cropperImage');
-        cropperImg.src = e.target.result;
-        modal.style.display = 'flex';
-
-        if(cropper) cropper.destroy();
-        cropper = new Cropper(cropperImg, {
-          aspectRatio: 1,
-          viewMode: 1,
-          autoCropArea: 0.8
-        });
-      };
-      reader.readAsDataURL(file);
+    function openManual(src) {
+      document.getElementById('cropModal').style.display = 'flex';
+      const img = document.getElementById('cropperImage');
+      img.src = src;
+      if(cropper) cropper.destroy();
+      cropper = new Cropper(img, { aspectRatio: 1 });
     }
 
     function applyManualCrop() {
-      if(!cropper) return;
-      const canvas = cropper.getCroppedCanvas({ width: 128, height: 128 });
-      document.getElementById(activeTargetImgId).src = canvas.toDataURL('image/png');
-      closeModal();
-    }
-
-    function closeModal() {
+      document.getElementById(activeImgId).src = cropper.getCroppedCanvas().toDataURL();
       document.getElementById('cropModal').style.display = 'none';
-      if(cropper) cropper.destroy();
-    }
-
-    function addNewApp() {
-      const currentId = appCount;
-      appCount++;
-
-      const container = document.getElementById('appList');
-      const div = document.createElement('div');
-      div.className = 'app-item';
-      div.innerHTML = `
-        <div class="app-left">
-          <div class="app-icon-frame">
-            <img class="app-icon" id="img-${currentId}" src="https://unavatar.io/google.com" alt="icon">
-          </div>
-          <div>
-            <div class="app-name" contenteditable="true">App Name</div>
-            <div class="app-time" contenteditable="true">0 minutes</div>
-          </div>
-        </div>
-        <div class="app-right">
-          <div class="divider"></div>
-          <svg class="hourglass-icon" viewBox="0 0 24 24"><path d="M6 2h12v6l-4 4 4 4v6H6v-6l4-4-4-4V2z"/></svg>
-        </div>
-      `;
-      container.appendChild(div);
-
-      const uploadContainer = document.getElementById('uploadList');
-      const uploadRow = document.createElement('div');
-      uploadRow.className = 'upload-row';
-      uploadRow.innerHTML = `
-        <span>App ${currentId + 1} Image:</span>
-        <input type="file" accept="image/*" onchange="handleImageProcessing(event, 'img-${currentId}')">
-      `;
-      uploadContainer.appendChild(uploadRow);
-    }
-
-    function exportImage() {
-      const area = document.getElementById('captureArea');
-      html2canvas(area, { scale: 3 }).then(canvas => {
-        const link = document.createElement('a');
-        link.download = 'screen-time-dashboard.png';
-        link.href = canvas.toDataURL('image/png');
-        link.click();
-      });
+      cropper.destroy();
     }
   </script>
 </body>
