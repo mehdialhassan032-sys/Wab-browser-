@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Screen Time Dashboard</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <!-- Canvas Cropper Library for Smart Cropping -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+
   <style>
     body {
       font-family: 'Roboto', -apple-system, sans-serif;
@@ -20,7 +24,6 @@
       width: 360px;
       background: #fcfcfd;
       padding: 12px 16px 24px 16px;
-      border-radius: 0px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.15);
       box-sizing: border-box;
       color: #1f1f1f;
@@ -182,7 +185,7 @@
       gap: 16px;
     }
 
-    /* Standard Android App Icon Styling */
+    /* Strict Android Squircle Icon System */
     .app-icon-frame {
       width: 36px;
       height: 36px;
@@ -193,6 +196,7 @@
       align-items: center;
       justify-content: center;
       box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      flex-shrink: 0;
     }
 
     .app-icon {
@@ -256,6 +260,7 @@
       cursor: pointer;
     }
     .btn-add { background: #2e7d32; }
+    .btn-crop { background: #ff9800; padding: 4px 8px; font-size: 11px; }
 
     .graph-controls {
       display: grid;
@@ -264,9 +269,7 @@
       margin-top: 10px;
       font-size: 12px;
     }
-    .graph-controls input {
-      width: 42px;
-    }
+    .graph-controls input { width: 42px; }
 
     .upload-row {
       display: flex;
@@ -274,6 +277,30 @@
       justify-content: space-between;
       margin-top: 8px;
       font-size: 12px;
+    }
+
+    /* Modal for AI Crop Tool */
+    .crop-modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.8);
+      z-index: 9999;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+    .crop-container {
+      max-width: 90%;
+      max-height: 70vh;
+      background: #000;
+    }
+    .crop-modal-btn {
+      margin-top: 15px;
+      display: flex;
+      gap: 10px;
     }
   </style>
 </head>
@@ -340,25 +367,21 @@
     </div>
 
     <div class="app-list" id="appList">
-      
       <div class="app-item">
         <div class="app-left">
           <div class="app-icon-frame">
-            <img class="app-icon" id="img-0" src="https://unavatar.io/instagram.com" onerror="this.src='https://www.google.com/s2/favicons?domain=instagram.com&sz=128'" alt="icon">
+            <img class="app-icon" id="img-0" src="https://unavatar.io/instagram.com" alt="icon">
           </div>
           <div>
-            <div class="app-name" contenteditable="true" onblur="autoDetectLogo(this, 'img-0')">Instagram</div>
+            <div class="app-name" contenteditable="true">Instagram</div>
             <div class="app-time" contenteditable="true">10 hr, 14 min</div>
           </div>
         </div>
         <div class="app-right">
           <div class="divider"></div>
-          <svg class="hourglass-icon" viewBox="0 0 24 24">
-            <path d="M6 2h12v6l-4 4 4 4v6H6v-6l4-4-4-4V2z"/>
-          </svg>
+          <svg class="hourglass-icon" viewBox="0 0 24 24"><path d="M6 2h12v6l-4 4 4 4v6H6v-6l4-4-4-4V2z"/></svg>
         </div>
       </div>
-
     </div>
   </div>
 
@@ -376,11 +399,11 @@
     
     <hr style="margin: 12px 0;">
     
-    <strong>Custom Logo Processing & Upload</strong>
+    <strong>Smart Upload & Logo Crop Tool</strong>
     <div id="uploadList">
       <div class="upload-row">
-        <span>App 1 Image:</span>
-        <input type="file" accept="image/*" onchange="processAndCropImage(event, 'img-0')">
+        <span>App 1 Logo:</span>
+        <input type="file" accept="image/*" onchange="openCropper(event, 'img-0')">
       </div>
     </div>
 
@@ -392,69 +415,65 @@
     </div>
   </div>
 
+  <!-- Interactive Cropper Modal Popup -->
+  <div class="crop-modal" id="cropModal">
+    <div class="crop-container">
+      <img id="cropperImage" src="" style="max-width: 100%;">
+    </div>
+    <div class="crop-modal-btn">
+      <button class="btn btn-crop" onclick="applyCrop()">✂ Crop & Apply Logo</button>
+      <button class="btn" style="background:#666;" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+
   <script>
     let appCount = 1;
+    let cropper = null;
+    let activeTargetImgId = null;
 
     function adjustBarByHours(barId, hoursVal) {
       let hours = parseFloat(hoursVal);
       if (isNaN(hours)) hours = 0;
       if (hours > 15) hours = 15;
-      
-      const percentage = (hours / 15) * 100;
-      document.getElementById(barId).style.height = percentage + '%';
+      document.getElementById(barId).style.height = ((hours / 15) * 100) + '%';
     }
 
-    // AI Brand-Fetch Engine via Text Name
-    function autoDetectLogo(element, imgId) {
-      let name = element.innerText.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
-      if(!name) return;
-
-      const targetImg = document.getElementById(imgId);
-      let domain = name + '.com';
-
-      if(name === 'freefire' || name === 'freefiremax') domain = 'ff.garena.com';
-      else if(name === 'telegram') domain = 'telegram.org';
-      else if(name === 'bgmi') domain = 'battlegroundsmobileindia.com';
-
-      targetImg.src = `https://unavatar.io/${domain}`;
-      targetImg.onerror = function() {
-        this.onerror = null;
-        this.src = `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
-      };
-    }
-
-    // Smart Auto-Crop & Shape Processor (Canvas Based)
-    function processAndCropImage(event, targetImgId) {
+    function openCropper(event, targetImgId) {
       const file = event.target.files[0];
       if (!file) return;
 
+      activeTargetImgId = targetImgId;
       const reader = new FileReader();
       reader.onload = function(e) {
-        const tempImg = new Image();
-        tempImg.src = e.target.result;
-        
-        tempImg.onload = function() {
-          const canvas = document.createElement('canvas');
-          const ctx = canvas.getContext('2d');
+        const modal = document.getElementById('cropModal');
+        const cropperImg = document.getElementById('cropperImage');
+        cropperImg.src = e.target.result;
+        modal.style.display = 'flex';
 
-          // Fixed App Icon Size
-          const size = 128;
-          canvas.width = size;
-          canvas.height = size;
-
-          // Square center-crop logic
-          let minSide = Math.min(tempImg.width, tempImg.height);
-          let sx = (tempImg.width - minSide) / 2;
-          let sy = (tempImg.height - minSide) / 2;
-
-          // Draw cropped & scaled image into canvas
-          ctx.drawImage(tempImg, sx, sy, minSide, minSide, 0, 0, size, size);
-
-          // Update app icon image
-          document.getElementById(targetImgId).src = canvas.toDataURL('image/png');
-        };
+        if(cropper) cropper.destroy();
+        cropper = new Cropper(cropperImg, {
+          aspectRatio: 1, // Strict 1:1 App Icon Aspect Ratio
+          viewMode: 1,
+          autoCropArea: 0.8
+        });
       };
       reader.readAsDataURL(file);
+    }
+
+    function applyCrop() {
+      if(!cropper) return;
+      const canvas = cropper.getCroppedCanvas({
+        width: 128,
+        height: 128
+      });
+
+      document.getElementById(activeTargetImgId).src = canvas.toDataURL('image/png');
+      closeModal();
+    }
+
+    function closeModal() {
+      document.getElementById('cropModal').style.display = 'none';
+      if(cropper) cropper.destroy();
     }
 
     function addNewApp() {
@@ -467,18 +486,16 @@
       div.innerHTML = `
         <div class="app-left">
           <div class="app-icon-frame">
-            <img class="app-icon" id="img-${currentId}" src="https://unavatar.io/google.com" onerror="this.src='https://www.google.com/s2/favicons?domain=google.com&sz=128'" alt="icon">
+            <img class="app-icon" id="img-${currentId}" src="https://unavatar.io/google.com" alt="icon">
           </div>
           <div>
-            <div class="app-name" contenteditable="true" onblur="autoDetectLogo(this, 'img-${currentId}')">App Name</div>
+            <div class="app-name" contenteditable="true">App Name</div>
             <div class="app-time" contenteditable="true">0 minutes</div>
           </div>
         </div>
         <div class="app-right">
           <div class="divider"></div>
-          <svg class="hourglass-icon" viewBox="0 0 24 24">
-            <path d="M6 2h12v6l-4 4 4 4v6H6v-6l4-4-4-4V2z"/>
-          </svg>
+          <svg class="hourglass-icon" viewBox="0 0 24 24"><path d="M6 2h12v6l-4 4 4 4v6H6v-6l4-4-4-4V2z"/></svg>
         </div>
       `;
       container.appendChild(div);
@@ -487,8 +504,8 @@
       const uploadRow = document.createElement('div');
       uploadRow.className = 'upload-row';
       uploadRow.innerHTML = `
-        <span>App ${currentId + 1} Image:</span>
-        <input type="file" accept="image/*" onchange="processAndCropImage(event, 'img-${currentId}')">
+        <span>App ${currentId + 1} Logo:</span>
+        <input type="file" accept="image/*" onchange="openCropper(event, 'img-${currentId}')">
       `;
       uploadContainer.appendChild(uploadRow);
     }
@@ -503,6 +520,5 @@
       });
     }
   </script>
-
 </body>
 </html>
