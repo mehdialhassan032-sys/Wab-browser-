@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Screen Time Generator</title>
+  <title>App Activity Dashboard</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
     body {
       font-family: 'Roboto', -apple-system, sans-serif;
-      background-color: #f0f2f5;
+      background-color: #e5e7eb;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -16,132 +16,307 @@
       margin: 0;
     }
 
-    /* Generator Box (Android Style UI) */
+    /* Screen Layout (Sharp 4 corners) */
     .phone-screen {
       width: 360px;
-      background: #ffffff;
-      padding: 20px;
-      border-radius: 24px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+      background: #fafafd;
+      padding: 12px 16px 24px 16px;
+      border-radius: 0px; /* Square corners */
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
       box-sizing: border-box;
+      color: #1a1a1a;
     }
 
-    .title { font-size: 22px; font-weight: 500; color: #1f1f1f; margin-bottom: 20px; }
-    .badge-container { text-align: center; }
-    .badge { background: #e0e7ff; color: #3730a3; padding: 6px 16px; border-radius: 20px; font-size: 14px; display: inline-block; }
-    .total-time { font-size: 36px; font-weight: 500; text-align: center; margin: 10px 0 2px 0; }
-    .sub-title { font-size: 14px; color: #70757a; text-align: center; margin-bottom: 20px; }
-    
-    .date-text { text-align: center; font-size: 15px; font-weight: 500; margin-bottom: 15px; }
+    /* Top Bar */
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 12px;
+    }
 
-    /* Dynamic App List */
-    .app-list { display: flex; flex-direction: column; gap: 16px; }
-    .app-item { display: flex; align-items: center; justify-content: space-between; }
-    .app-details { display: flex; align-items: center; gap: 12px; }
-    .app-icon { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
-    
-    /* Editable elements styling */
-    [contenteditable="true"] { outline: none; border-bottom: 1px dashed transparent; }
-    [contenteditable="true"]:hover { border-bottom: 1px dashed #2563eb; }
-    [contenteditable="true"]:focus { background-color: #eff6ff; border-bottom: 1px solid #2563eb; }
+    .header-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 20px;
+      margin-bottom: 24px;
+    }
 
-    /* Action Buttons */
-    .controls { margin-top: 20px; display: flex; gap: 10px; }
-    .btn { background: #2563eb; color: white; border: none; padding: 10px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; }
-    .btn-add { background: #16a34a; }
+    .center-info {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .badge {
+      background: #e2e7ff;
+      color: #3b488b;
+      padding: 6px 16px;
+      border-radius: 16px;
+      font-size: 13px;
+      display: inline-block;
+      margin-bottom: 12px;
+    }
+
+    .total-time {
+      font-size: 34px;
+      font-weight: 400;
+    }
+
+    .sub-title {
+      font-size: 13px;
+      color: #666;
+      margin-top: 4px;
+    }
+
+    /* Chart with Y-Axis lines */
+    .chart-container {
+      position: relative;
+      height: 130px;
+      margin: 20px 0 10px 0;
+      display: flex;
+    }
+
+    .y-axis {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      font-size: 9px;
+      color: #888;
+      position: absolute;
+      right: 0;
+      top: 0;
+      bottom: 20px;
+      text-align: right;
+    }
+
+    .chart-grid {
+      width: 100%;
+      height: 100px;
+      border-bottom: 1px solid #e0e0e0;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      padding-right: 25px;
+      background: linear-gradient(to bottom, 
+        transparent 0%, transparent 24%, 
+        #f0f0f5 25%, transparent 26%,
+        transparent 49%, #f0f0f5 50%, transparent 51%,
+        transparent 74%, #f0f0f5 75%, transparent 76%);
+    }
+
+    .bar-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 11%;
+      height: 100%;
+      justify-content: flex-end;
+    }
+
+    .bar {
+      width: 100%;
+      background-color: #c7d9ff;
+    }
+
+    .bar.active {
+      background-color: #2962ff;
+    }
+
+    .bar-day {
+      font-size: 10px;
+      color: #666;
+      margin-top: 6px;
+      position: absolute;
+      bottom: -18px;
+    }
+
+    .date-selector {
+      text-align: center;
+      font-size: 14px;
+      margin: 24px 0 16px 0;
+      color: #333;
+    }
+
+    /* App Item List */
+    .app-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .app-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .app-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .app-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .app-name {
+      font-size: 15px;
+      font-weight: 400;
+    }
+
+    .app-time {
+      font-size: 12px;
+      color: #666;
+    }
+
+    .timer-icon {
+      font-size: 16px;
+      color: #444;
+    }
+
+    [contenteditable="true"] {
+      outline: none;
+    }
+    [contenteditable="true"]:focus {
+      background-color: #f0f4ff;
+    }
+
+    .controls {
+      margin-top: 20px;
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn {
+      background: #2962ff;
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .btn-add { background: #2e7d32; }
   </style>
 </head>
 <body>
 
-  <!-- Screen UI -->
   <div class="phone-screen" id="captureArea">
-    <div class="title" contenteditable="true">App activity details</div>
-    
-    <div class="badge-container">
-      <span class="badge" contenteditable="true">Screen time ▼</span>
+    <!-- Status Bar -->
+    <div class="top-bar">
+      <span contenteditable="true">2:14</span>
+      <span contenteditable="true">VoLTE 99%</span>
     </div>
-    
-    <div class="total-time" contenteditable="true">6 hr, 59 min</div>
-    <div class="sub-title" contenteditable="true">Today</div>
-    
-    <div class="date-text" contenteditable="true">‹ Mon, Aug 17 ›</div>
 
-    <!-- App items with Dynamic Icon Loading -->
+    <!-- Header Navigation -->
+    <div class="header-nav">
+      <span>←</span>
+      <span style="font-size: 16px;" contenteditable="true">⋮</span>
+    </div>
+
+    <div style="font-size: 22px; margin-bottom: 20px;" contenteditable="true">App activity details</div>
+
+    <div class="center-info">
+      <div class="badge" contenteditable="true">Screen time ▼</div>
+      <div class="total-time" contenteditable="true">6 hr, 59 min</div>
+      <div class="sub-title" contenteditable="true">Today</div>
+    </div>
+
+    <!-- Graph Bar Section -->
+    <div class="chart-container">
+      <div class="chart-grid">
+        <div class="bar-col"><div class="bar" style="height: 85%;"></div><span class="bar-day" contenteditable="true">Sun</span></div>
+        <div class="bar-col"><div class="bar active" style="height: 48%;"></div><span class="bar-day" contenteditable="true">Mon</span></div>
+        <div class="bar-col"><div class="bar" style="height: 5%;"></div><span class="bar-day" contenteditable="true">Tue</span></div>
+        <div class="bar-col"><div class="bar" style="height: 5%;"></div><span class="bar-day" contenteditable="true">Wed</span></div>
+        <div class="bar-col"><div class="bar" style="height: 5%;"></div><span class="bar-day" contenteditable="true">Thu</span></div>
+        <div class="bar-col"><div class="bar" style="height: 5%;"></div><span class="bar-day" contenteditable="true">Fri</span></div>
+        <div class="bar-col"><div class="bar" style="height: 5%;"></div><span class="bar-day" contenteditable="true">Sat</span></div>
+      </div>
+      <div class="y-axis">
+        <span>15h</span>
+        <span>12h</span>
+        <span>9h</span>
+        <span>6h</span>
+        <span>3h</span>
+        <span>0h</span>
+      </div>
+    </div>
+
+    <div class="date-selector" contenteditable="true">‹ &nbsp;&nbsp;&nbsp;&nbsp; Mon, Aug 17 &nbsp;&nbsp;&nbsp;&nbsp; ›</div>
+
+    <!-- App List -->
     <div class="app-list" id="appList">
-      
       <div class="app-item">
-        <div class="app-details">
+        <div class="app-left">
           <img class="app-icon" src="https://www.google.com/s2/favicons?domain=instagram.com&sz=64" alt="icon">
           <div>
-            <div class="app-name" contenteditable="true" onblur="updateIcon(this)">Instagram</div>
-            <div style="font-size: 12px; color: #70757a;" contenteditable="true">1 hr, 46 min</div>
+            <div class="app-name" contenteditable="true" onblur="fetchLogo(this)">Instagram</div>
+            <div class="app-time" contenteditable="true">1 hr, 46 min</div>
           </div>
         </div>
+        <div class="timer-icon">⌛</div>
       </div>
 
       <div class="app-item">
-        <div class="app-details">
+        <div class="app-left">
           <img class="app-icon" src="https://www.google.com/s2/favicons?domain=youtube.com&sz=64" alt="icon">
           <div>
-            <div class="app-name" contenteditable="true" onblur="updateIcon(this)">YouTube</div>
-            <div style="font-size: 12px; color: #70757a;" contenteditable="true">1 hr, 44 min</div>
+            <div class="app-name" contenteditable="true" onblur="fetchLogo(this)">YouTube</div>
+            <div class="app-time" contenteditable="true">1 hr, 44 min</div>
           </div>
         </div>
+        <div class="timer-icon">⌛</div>
       </div>
-
-      <div class="app-item">
-        <div class="app-details">
-          <img class="app-icon" src="https://www.google.com/s2/favicons?domain=google.com&sz=64" alt="icon">
-          <div>
-            <div class="app-name" contenteditable="true" onblur="updateIcon(this)">Chrome</div>
-            <div style="font-size: 12px; color: #70757a;" contenteditable="true">33 minutes</div>
-          </div>
-        </div>
-      </div>
-
     </div>
   </div>
 
   <div class="controls">
-    <button class="btn btn-add" onclick="addAppRow()">+ Add App</button>
-    <button class="btn" onclick="downloadPNG()">Download Screenshot</button>
+    <button class="btn btn-add" onclick="addNewApp()">+ Add App</button>
+    <button class="btn" onclick="exportImage()">Download Image</button>
   </div>
 
   <script>
-    // Automatic Icon Update based on App Name
-    function updateIcon(element) {
-      const appName = element.innerText.trim().toLowerCase().replace(/\s+/g, '');
-      const iconImg = element.closest('.app-details').querySelector('.app-icon');
-      
-      if (appName) {
-        // Fetches real-time brand favicons automatically
-        iconImg.src = `https://www.google.com/s2/favicons?domain=${appName}.com&sz=64`;
+    // Auto App Logo Fetcher
+    function fetchLogo(element) {
+      const name = element.innerText.trim().toLowerCase().replace(/\s+/g, '');
+      const img = element.closest('.app-left').querySelector('.app-icon');
+      if (name) {
+        img.src = `https://www.google.com/s2/favicons?domain=${name}.com&sz=64`;
       }
     }
 
-    // Add New App Row Dynamically
-    function addAppRow() {
-      const appList = document.getElementById('appList');
-      const newRow = document.createElement('div');
-      newRow.className = 'app-item';
-      newRow.innerHTML = `
-        <div class="app-details">
-          <img class="app-icon" src="https://www.google.com/s2/favicons?domain=app.com&sz=64" alt="icon">
+    // Add New Row
+    function addNewApp() {
+      const container = document.getElementById('appList');
+      const div = document.createElement('div');
+      div.className = 'app-item';
+      div.innerHTML = `
+        <div class="app-left">
+          <img class="app-icon" src="https://www.google.com/s2/favicons?domain=google.com&sz=64" alt="icon">
           <div>
-            <div class="app-name" contenteditable="true" onblur="updateIcon(this)">App Name</div>
-            <div style="font-size: 12px; color: #70757a;" contenteditable="true">0 min</div>
+            <div class="app-name" contenteditable="true" onblur="fetchLogo(this)">App Name</div>
+            <div class="app-time" contenteditable="true">0 min</div>
           </div>
         </div>
+        <div class="timer-icon">⌛</div>
       `;
-      appList.appendChild(newRow);
+      container.appendChild(div);
     }
 
-    // Download Canvas as Image
-    function downloadPNG() {
-      const captureArea = document.getElementById('captureArea');
-      html2canvas(captureArea, { scale: 2 }).then(canvas => {
+    // Export Canvas Output
+    function exportImage() {
+      const area = document.getElementById('captureArea');
+      html2canvas(area, { scale: 3 }).then(canvas => {
         const link = document.createElement('a');
-        link.download = 'screentime-report.png';
+        link.download = 'screen-time-dashboard.png';
         link.href = canvas.toDataURL('image/png');
         link.click();
       });
