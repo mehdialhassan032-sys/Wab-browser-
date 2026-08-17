@@ -1,113 +1,192 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Custom Web Browser Interface</title>
-    <!-- Tailwind CSS CDN for Modern Styling -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Screen Time Dashboard</title>
+  <style>
+    body {
+      font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: #f8f9ff;
+      margin: 0;
+      padding: 16px;
+      color: #1f1f1f;
+      display: flex;
+      justify-content: center;
+    }
+    .container {
+      width: 100%;
+      max-width: 380px;
+      background: #ffffff;
+      padding: 20px;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    .header {
+      font-size: 24px;
+      font-weight: 500;
+      margin-bottom: 24px;
+    }
+    .time-badge {
+      background: #e0e7ff;
+      color: #3730a3;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 500;
+      display: inline-block;
+      margin-bottom: 12px;
+    }
+    .total-time {
+      font-size: 32px;
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+    .sub-text {
+      color: #70757a;
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+    .chart {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      height: 120px;
+      border-bottom: 1px solid #e0e0e0;
+      padding-bottom: 8px;
+      margin-bottom: 24px;
+    }
+    .bar-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 12%;
+    }
+    .bar {
+      width: 100%;
+      background-color: #dbeaff;
+      border-radius: 4px 4px 0 0;
+    }
+    .bar.active {
+      background-color: #2563eb;
+    }
+    .bar-label {
+      font-size: 11px;
+      color: #70757a;
+      margin-top: 6px;
+    }
+    .date-selector {
+      text-align: center;
+      font-size: 16px;
+      font-weight: 500;
+      margin-bottom: 20px;
+    }
+    .app-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .app-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .app-info {
+      display: flex;
+      flex-direction: column;
+    }
+    .app-name {
+      font-size: 16px;
+      font-weight: 500;
+    }
+    .app-time {
+      font-size: 13px;
+      color: #70757a;
+    }
+    /* Editable hint styling */
+    [contenteditable="true"]:hover {
+      outline: 1px dashed #2563eb;
+      border-radius: 2px;
+    }
+    [contenteditable="true"]:focus {
+      outline: 2px solid #2563eb;
+      background-color: #f0f7ff;
+    }
+  </style>
 </head>
-<body class="bg-gray-100 h-screen flex flex-col overflow-hidden">
+<body>
 
-    <!-- Top Navigation Bar -->
-    <header class="bg-[#f0f2f5] border-b border-gray-300 px-4 py-2 flex items-center justify-between shadow-sm">
-        <!-- Left: Brand / Logo -->
-        <div class="flex items-center space-x-2 cursor-pointer" onclick="navigateToHome()">
-            <div class="bg-[#1877f2] text-white font-bold w-9 h-9 rounded flex items-center justify-center text-xl">
-                f
-            </div>
-            <span class="font-bold text-[#1877f2] text-lg hidden sm:inline">Facebook Browser</span>
-        </div>
+<div class="container">
+  <div class="header" contenteditable="true">App activity details</div>
+  
+  <div style="text-align: center;">
+    <div class="time-badge" contenteditable="true">Screen time ▼</div>
+    <div class="total-time" contenteditable="true">6 hr, 59 min</div>
+    <div class="sub-text" contenteditable="true">Today</div>
+  </div>
 
-        <!-- Center: Action Tools & Controls -->
-        <div class="flex items-center space-x-2">
-            <button onclick="refreshPage()" title="Refresh" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1.5 rounded text-sm font-medium transition">
-                <i class="fas fa-rotate-right mr-1"></i> Refresh
-            </button>
-            <button onclick="pasteUID()" title="Paste UID" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1.5 rounded text-sm font-medium transition">
-                <i class="fas fa-clipboard mr-1"></i> Paste UID
-            </button>
-            <button onclick="saveCredentials()" title="Save Password" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1.5 rounded text-sm font-medium transition">
-                <i class="fas fa-floppy-disk mr-1"></i> Save
-            </button>
-            <button onclick="autoFill()" title="Auto-Fill" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1.5 rounded text-sm font-medium transition">
-                <i class="fas fa-bolt mr-1"></i> Auto-Fill
-            </button>
-            <button onclick="clearHistory()" title="Clear History" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1.5 rounded text-sm font-medium transition">
-                <i class="fas fa-trash-can mr-1"></i> Clear
-            </button>
-        </div>
+  <!-- Interactive Chart -->
+  <div class="chart">
+    <div class="bar-container">
+      <div class="bar" style="height: 90%;"></div>
+      <span class="bar-label" contenteditable="true">Sun</span>
+    </div>
+    <div class="bar-container">
+      <div class="bar active" style="height: 50%;"></div>
+      <span class="bar-label" contenteditable="true">Mon</span>
+    </div>
+    <div class="bar-container">
+      <div class="bar" style="height: 10%;"></div>
+      <span class="bar-label" contenteditable="true">Tue</span>
+    </div>
+    <div class="bar-container">
+      <div class="bar" style="height: 10%;"></div>
+      <span class="bar-label" contenteditable="true">Wed</span>
+    </div>
+    <div class="bar-container">
+      <div class="bar" style="height: 10%;"></div>
+      <span class="bar-label" contenteditable="true">Thu</span>
+    </div>
+    <div class="bar-container">
+      <div class="bar" style="height: 10%;"></div>
+      <span class="bar-label" contenteditable="true">Fri</span>
+    </div>
+    <div class="bar-container">
+      <div class="bar" style="height: 10%;"></div>
+      <span class="bar-label" contenteditable="true">Sat</span>
+    </div>
+  </div>
 
-        <!-- Right: Logout -->
-        <div>
-            <button onclick="logoutSession()" title="Logout" class="bg-[#fa383e] hover:bg-red-600 text-white px-3 py-1.5 rounded text-sm font-bold transition">
-                <i class="fas fa-right-from-bracket mr-1"></i> Logout
-            </button>
-        </div>
-    </header>
+  <div class="date-selector" contenteditable="true">‹ Mon, Aug 17 ›</div>
 
-    <!-- Main Content Area (Embedded View / Web Frame Simulation) -->
-    <main class="flex-1 flex items-center justify-center p-4 bg-white m-4 rounded-lg shadow-inner overflow-hidden relative">
-        <iframe id="browserFrame" src="https://www.facebook.com" class="w-full h-full border-0 rounded"></iframe>
-    </main>
+  <!-- App List -->
+  <div class="app-list">
+    <div class="app-item">
+      <div class="app-info">
+        <span class="app-name" contenteditable="true">Instagram</span>
+        <span class="app-time" contenteditable="true">1 hr, 46 min</span>
+      </div>
+    </div>
+    <div class="app-item">
+      <div class="app-info">
+        <span class="app-name" contenteditable="true">YouTube</span>
+        <span class="app-time" contenteditable="true">1 hr, 44 min</span>
+      </div>
+    </div>
+    <div class="app-item">
+      <div class="app-info">
+        <span class="app-name" contenteditable="true">Free Fire MAX</span>
+        <span class="app-time" contenteditable="true">1 hr, 38 min</span>
+      </div>
+    </div>
+    <div class="app-item">
+      <div class="app-info">
+        <span class="app-name" contenteditable="true">Google</span>
+        <span class="app-time" contenteditable="true">33 minutes</span>
+      </div>
+    </div>
+  </div>
+</div>
 
-    <!-- Footer Status Bar -->
-    <footer class="bg-gray-200 text-gray-600 text-xs px-4 py-1 flex justify-between items-center border-t border-gray-300">
-        <span>Status: Ready</span>
-        <span>Secure Local Session</span>
-    </footer>
-
-    <!-- JavaScript Actions Logic -->
-    <script>
-        function navigateToHome() {
-            document.getElementById('browserFrame').src = "https://www.facebook.com";
-        }
-
-        function refreshPage() {
-            const frame = document.getElementById('browserFrame');
-            frame.src = frame.src;
-        }
-
-        async function pasteUID() {
-            try {
-                const text = await navigator.clipboard.readText();
-                if (!text) {
-                    alert("Clipboard is empty.");
-                    return;
-                }
-                console.log("Pasted UID:", text);
-                alert(`UID pasted successfully: ${text}`);
-            } catch (err) {
-                alert("Failed to read clipboard contents. Check browser permissions.");
-            }
-        }
-
-        function saveCredentials() {
-            localStorage.setItem("saved_password", "sample_password_placeholder");
-            alert("Credentials saved securely to local storage.");
-        }
-
-        function autoFill() {
-            const pwd = localStorage.getItem("saved_password");
-            if (pwd) {
-                alert("Auto-filled saved credentials into active fields.");
-            } else {
-                alert("No saved credentials found.");
-            }
-        }
-
-        function clearHistory() {
-            localStorage.clear();
-            sessionStorage.clear();
-            alert("Local browser cache and session history cleared.");
-        }
-
-        function logoutSession() {
-            localStorage.clear();
-            navigateToHome();
-            alert("Logged out successfully.");
-        }
-    </script>
 </body>
 </html>
