@@ -182,11 +182,23 @@
       gap: 16px;
     }
 
+    /* Standard Android App Icon Styling */
+    .app-icon-frame {
+      width: 36px;
+      height: 36px;
+      border-radius: 9px;
+      overflow: hidden;
+      background: #f0f0f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
     .app-icon {
-      width: 34px;
-      height: 34px;
-      object-fit: contain;
-      border-radius: 8px;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
 
     .app-name {
@@ -224,7 +236,6 @@
     [contenteditable="true"] { outline: none; }
     [contenteditable="true"]:focus { background-color: #f0f4ff; }
 
-    /* Control Panel & Dedicated Upload Section */
     .controls-panel {
       margin-top: 20px;
       width: 360px;
@@ -245,11 +256,6 @@
       cursor: pointer;
     }
     .btn-add { background: #2e7d32; }
-    .btn-upload {
-      background: #6c757d;
-      font-size: 11px;
-      padding: 4px 8px;
-    }
 
     .graph-controls {
       display: grid;
@@ -267,7 +273,7 @@
       align-items: center;
       justify-content: space-between;
       margin-top: 8px;
-      font-size: 13px;
+      font-size: 12px;
     }
   </style>
 </head>
@@ -335,11 +341,13 @@
 
     <div class="app-list" id="appList">
       
-      <div class="app-item" id="app-item-0">
+      <div class="app-item">
         <div class="app-left">
-          <img class="app-icon" id="img-0" src="https://www.google.com/s2/favicons?domain=instagram.com&sz=128" alt="icon">
+          <div class="app-icon-frame">
+            <img class="app-icon" id="img-0" src="https://unavatar.io/instagram.com" onerror="this.src='https://www.google.com/s2/favicons?domain=instagram.com&sz=128'" alt="icon">
+          </div>
           <div>
-            <div class="app-name" contenteditable="true" oninput="syncUploadList()">Instagram</div>
+            <div class="app-name" contenteditable="true" onblur="autoDetectLogo(this, 'img-0')">Instagram</div>
             <div class="app-time" contenteditable="true">10 hr, 14 min</div>
           </div>
         </div>
@@ -368,11 +376,11 @@
     
     <hr style="margin: 12px 0;">
     
-    <strong>Manual Logo Upload Controls</strong>
+    <strong>Custom Logo Processing & Upload</strong>
     <div id="uploadList">
       <div class="upload-row">
-        <span>App 1 Logo:</span>
-        <input type="file" accept="image/*" onchange="uploadLogo(event, 'img-0')">
+        <span>App 1 Image:</span>
+        <input type="file" accept="image/*" onchange="processAndCropImage(event, 'img-0')">
       </div>
     </div>
 
@@ -396,15 +404,57 @@
       document.getElementById(barId).style.height = percentage + '%';
     }
 
-    function uploadLogo(event, imgId) {
+    // AI Brand-Fetch Engine via Text Name
+    function autoDetectLogo(element, imgId) {
+      let name = element.innerText.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+      if(!name) return;
+
+      const targetImg = document.getElementById(imgId);
+      let domain = name + '.com';
+
+      if(name === 'freefire' || name === 'freefiremax') domain = 'ff.garena.com';
+      else if(name === 'telegram') domain = 'telegram.org';
+      else if(name === 'bgmi') domain = 'battlegroundsmobileindia.com';
+
+      targetImg.src = `https://unavatar.io/${domain}`;
+      targetImg.onerror = function() {
+        this.onerror = null;
+        this.src = `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
+      };
+    }
+
+    // Smart Auto-Crop & Shape Processor (Canvas Based)
+    function processAndCropImage(event, targetImgId) {
       const file = event.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          document.getElementById(imgId).src = e.target.result;
-        }
-        reader.readAsDataURL(file);
-      }
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const tempImg = new Image();
+        tempImg.src = e.target.result;
+        
+        tempImg.onload = function() {
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+
+          // Fixed App Icon Size
+          const size = 128;
+          canvas.width = size;
+          canvas.height = size;
+
+          // Square center-crop logic
+          let minSide = Math.min(tempImg.width, tempImg.height);
+          let sx = (tempImg.width - minSide) / 2;
+          let sy = (tempImg.height - minSide) / 2;
+
+          // Draw cropped & scaled image into canvas
+          ctx.drawImage(tempImg, sx, sy, minSide, minSide, 0, 0, size, size);
+
+          // Update app icon image
+          document.getElementById(targetImgId).src = canvas.toDataURL('image/png');
+        };
+      };
+      reader.readAsDataURL(file);
     }
 
     function addNewApp() {
@@ -414,12 +464,13 @@
       const container = document.getElementById('appList');
       const div = document.createElement('div');
       div.className = 'app-item';
-      div.id = `app-item-${currentId}`;
       div.innerHTML = `
         <div class="app-left">
-          <img class="app-icon" id="img-${currentId}" src="https://www.google.com/s2/favicons?domain=google.com&sz=128" alt="icon">
+          <div class="app-icon-frame">
+            <img class="app-icon" id="img-${currentId}" src="https://unavatar.io/google.com" onerror="this.src='https://www.google.com/s2/favicons?domain=google.com&sz=128'" alt="icon">
+          </div>
           <div>
-            <div class="app-name" contenteditable="true">New App</div>
+            <div class="app-name" contenteditable="true" onblur="autoDetectLogo(this, 'img-${currentId}')">App Name</div>
             <div class="app-time" contenteditable="true">0 minutes</div>
           </div>
         </div>
@@ -432,13 +483,12 @@
       `;
       container.appendChild(div);
 
-      // Add Upload Row to Control Panel
       const uploadContainer = document.getElementById('uploadList');
       const uploadRow = document.createElement('div');
       uploadRow.className = 'upload-row';
       uploadRow.innerHTML = `
-        <span>App ${currentId + 1} Logo:</span>
-        <input type="file" accept="image/*" onchange="uploadLogo(event, 'img-${currentId}')">
+        <span>App ${currentId + 1} Image:</span>
+        <input type="file" accept="image/*" onchange="processAndCropImage(event, 'img-${currentId}')">
       `;
       uploadContainer.appendChild(uploadRow);
     }
