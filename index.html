@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Screen Time Dashboard - Final Pixel Perfect</title>
+  <title>Screen Time Dashboard - Final Code</title>
   
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css"/>
@@ -20,76 +20,36 @@
       margin: 0;
     }
 
+    /* PHONE CONTAINER */
     .phone-screen {
       width: 360px;
-      background: #fcfcfd;
-      padding: 4px 16px 24px 16px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+      background: #ffffff;
+      padding: 18px 20px 24px 20px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
       box-sizing: border-box;
       color: #1f1f1f;
       position: relative;
     }
 
-    /* EXACT STATUS BAR */
-    .status-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      height: 28px;
-      font-size: 11.5px;
-      font-weight: 500;
-      color: #1f1f1f;
-      margin-bottom: 8px;
-    }
-
-    .status-right {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      font-size: 10px;
-    }
-
-    .signal-container {
-      display: flex;
-      align-items: flex-end;
-      gap: 1.5px;
-      height: 9px;
-      margin: 0 1px;
-    }
-    .signal-bar { width: 2.5px; background: #1f1f1f; border-radius: 0.5px; }
-    .signal-bar:nth-child(1) { height: 3px; }
-    .signal-bar:nth-child(2) { height: 5px; }
-    .signal-bar:nth-child(3) { height: 7px; opacity: 0.4; }
-    .signal-bar:nth-child(4) { height: 9px; opacity: 0.4; }
-
-    .battery-box {
-      display: flex;
-      align-items: center;
-      gap: 2px;
-    }
-
-    .battery-circle {
-      width: 10px;
-      height: 10px;
-      border: 1.5px solid #1f1f1f;
-      border-radius: 50%;
-      display: inline-block;
-      box-sizing: border-box;
-    }
-
+    /* HEADER NAVIGATION (SVG ICONS) */
     .header-nav {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 20px;
-      margin-bottom: 16px;
-      color: #1f1f1f;
+      margin-bottom: 20px;
+    }
+
+    .nav-icon {
+      width: 24px;
+      height: 24px;
+      fill: #1f1f1f;
+      cursor: pointer;
     }
 
     #titleText {
-      font-size: 28px;
+      font-size: 24px;
       font-weight: 400;
-      margin-bottom: 20px;
+      margin-bottom: 22px;
       color: #1f1f1f;
       line-height: 1.2;
     }
@@ -100,35 +60,36 @@
     }
 
     .badge {
-      background: #e5ecff;
-      color: #30419b;
-      padding: 7px 18px;
+      background: #e8f0fe;
+      color: #1967d2;
+      padding: 6px 16px;
       border-radius: 20px;
-      font-size: 13.5px;
+      font-size: 13px;
       font-weight: 500;
       display: inline-block;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
     }
 
     #timeText {
-      font-size: 38px;
-      font-weight: 400;
+      font-size: 42px;
+      font-weight: 300;
       letter-spacing: -0.5px;
       color: #1f1f1f;
       line-height: 1.1;
-      margin: 6px 0;
+      margin: 4px 0;
     }
 
     .sub-title {
-      font-size: 13px;
-      color: #666;
+      font-size: 13.5px;
+      color: #5f6368;
       margin-top: 2px;
     }
 
+    /* CHART CONTAINER */
     .chart-container {
       position: relative;
-      height: 110px;
-      margin: 16px 0 10px 0;
+      height: 120px;
+      margin: 20px 0 10px 0;
       display: flex;
     }
 
@@ -149,7 +110,7 @@
 
     .chart-grid {
       width: 100%;
-      height: 90px;
+      height: 100px;
       display: flex;
       justify-content: space-between;
       align-items: flex-end;
@@ -171,25 +132,26 @@
     .bar {
       width: 100%;
       background-color: #c4d9ff;
+      border-radius: 2px 2px 0 0;
     }
 
     .bar.active {
-      background-color: #3b73ff;
+      background-color: #1967d2;
     }
 
     .bar-day {
-      font-size: 9.5px;
-      color: #555;
+      font-size: 10px;
+      color: #5f6368;
       position: absolute;
-      bottom: -18px;
+      bottom: -20px;
     }
 
     .y-axis {
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      font-size: 8.5px;
-      color: #777;
+      font-size: 9px;
+      color: #70757a;
       position: absolute;
       right: 0; top: -4px; bottom: 20px;
       text-align: right;
@@ -199,11 +161,12 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 13.5px;
-      margin: 24px 35px 18px 35px;
-      color: #333;
+      font-size: 14px;
+      margin: 28px 30px 20px 30px;
+      color: #3c4043;
     }
 
+    /* APP LIST */
     .app-list {
       display: flex;
       flex-direction: column;
@@ -223,15 +186,14 @@
     }
 
     .app-icon-frame {
-      width: 36px;
-      height: 36px;
-      border-radius: 9px;
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
       overflow: hidden;
-      background: #f0f0f0;
+      background: #f1f3f4;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
       flex-shrink: 0;
     }
 
@@ -242,14 +204,14 @@
     }
 
     .app-name {
-      font-size: 15.5px;
+      font-size: 15px;
       font-weight: 400;
-      color: #1a1a1a;
+      color: #202124;
     }
 
     .app-time {
       font-size: 12.5px;
-      color: #666;
+      color: #5f6368;
       margin-top: 1px;
     }
 
@@ -266,16 +228,17 @@
     }
 
     .hourglass-icon {
-      width: 15px;
-      height: 15px;
+      width: 16px;
+      height: 16px;
       fill: none;
-      stroke: #333333;
-      stroke-width: 1.6;
+      stroke: #5f6368;
+      stroke-width: 1.8;
     }
 
     [contenteditable="true"] { outline: none; }
     [contenteditable="true"]:focus { background-color: #eef4ff; border-radius: 2px; }
 
+    /* CONTROLS */
     .controls-panel {
       margin-top: 20px;
       width: 360px;
@@ -294,21 +257,19 @@
       font-size: 13px;
     }
 
-    .slider-row input[type="range"] {
-      width: 150px;
-    }
+    .slider-row input[type="range"] { width: 150px; }
 
     .btn {
-      background: #3b73ff;
+      background: #1967d2;
       color: white;
       border: none;
-      padding: 9px 14px;
+      padding: 10px 14px;
       border-radius: 6px;
       font-weight: bold;
       cursor: pointer;
     }
-    .btn-add { background: #2e7d32; }
-    .btn-crop { background: #ff9800; padding: 6px 12px; font-size: 12px; }
+    .btn-add { background: #1e8e3e; }
+    .btn-crop { background: #f9ab00; color: #000; padding: 6px 12px; font-size: 12px; }
 
     .graph-controls {
       display: grid;
@@ -317,7 +278,7 @@
       margin-top: 8px;
       font-size: 12px;
     }
-    .graph-controls input { width: 40px; }
+    .graph-controls input { width: 38px; }
 
     .upload-row {
       display: flex;
@@ -338,26 +299,10 @@
 <body>
 
   <div class="phone-screen" id="captureArea">
-
-    <div class="status-bar">
-      <span id="realTime" contenteditable="true" oninput="stopAutoTime()">2:14</span>
-      <div class="status-right">
-        <span contenteditable="true">VoLTE</span>
-        <span contenteditable="true">0.10 KB/s</span>
-        <span contenteditable="true">5G</span>
-        <div class="signal-container">
-          <div class="signal-bar"></div><div class="signal-bar"></div><div class="signal-bar"></div><div class="signal-bar"></div>
-        </div>
-        <div class="battery-box">
-          <div class="battery-circle"></div>
-          <span contenteditable="true">99%</span>
-        </div>
-      </div>
-    </div>
-
+    <!-- EXACT SVG HEADER -->
     <div class="header-nav">
-      <span contenteditable="true">←</span>
-      <span contenteditable="true">⋮</span>
+      <svg class="nav-icon" viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+      <svg class="nav-icon" viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
     </div>
 
     <div id="titleText" contenteditable="true">App activity details</div>
@@ -424,19 +369,19 @@
   </div>
 
   <div class="controls-panel">
-    <strong>Live Font Size Adjuster</strong>
+    <strong>Font Controls</strong>
     <div class="slider-row">
-      <span>Title Size: <b id="titleVal">28px</b></span>
-      <input type="range" min="16" max="50" value="28" oninput="changeFontSize('titleText', this.value, 'titleVal')">
+      <span>Title Size: <b id="titleVal">24px</b></span>
+      <input type="range" min="16" max="40" value="24" oninput="changeFontSize('titleText', this.value, 'titleVal')">
     </div>
     <div class="slider-row">
-      <span>Time Size: <b id="timeVal">38px</b></span>
-      <input type="range" min="20" max="70" value="38" oninput="changeFontSize('timeText', this.value, 'timeVal')">
+      <span>Time Size: <b id="timeVal">42px</b></span>
+      <input type="range" min="20" max="60" value="42" oninput="changeFontSize('timeText', this.value, 'timeVal')">
     </div>
 
     <hr style="margin: 12px 0;">
 
-    <strong>Bar Height Controls (0h to 15h)</strong>
+    <strong>Bar Height (0h to 15h)</strong>
     <div class="graph-controls">
       <span>Sun: <input type="number" step="0.5" max="15" min="0" value="14.3" onchange="adjustBarByHours('bar-sun', this.value)">h</span>
       <span>Mon: <input type="number" step="0.5" max="15" min="0" value="7.2" onchange="adjustBarByHours('bar-mon', this.value)">h</span>
@@ -449,10 +394,10 @@
 
     <hr style="margin: 12px 0;">
 
-    <strong>Logo Upload Controls</strong>
+    <strong>Logo Change</strong>
     <div id="uploadList">
       <div class="upload-row">
-        <span>App 1 Image:</span>
+        <span>App 1 Logo:</span>
         <input type="file" accept="image/*" onchange="handleImageProcessing(event, 'img-0')">
       </div>
     </div>
@@ -479,20 +424,6 @@
     let appCount = 1;
     let cropper = null;
     let activeTargetImgId = null;
-    let autoTime = true;
-
-    function stopAutoTime() { autoTime = false; }
-
-    function updateClock() {
-      if (!autoTime) return;
-      const now = new Date();
-      let hours = now.getHours();
-      let minutes = now.getMinutes();
-      const timeEl = document.getElementById('realTime');
-      timeEl.innerText = hours + ":" + (minutes < 10 ? '0' + minutes : minutes);
-    }
-    setInterval(updateClock, 1000);
-    updateClock();
 
     function changeFontSize(elementId, size, displayId) {
       const el = document.getElementById(elementId);
@@ -554,7 +485,7 @@
           </div>
           <div>
             <div class="app-name" contenteditable="true">App Name</div>
-            <div class="app-time" contenteditable="true">0 minutes</div>
+            <div class="app-time" contenteditable="true">0 min</div>
           </div>
         </div>
         <div class="app-right">
@@ -568,7 +499,7 @@
       const uploadRow = document.createElement('div');
       uploadRow.className = 'upload-row';
       uploadRow.innerHTML = `
-        <span>App ${currentId + 1} Image:</span>
+        <span>App ${currentId + 1} Logo:</span>
         <input type="file" accept="image/*" onchange="handleImageProcessing(event, 'img-${currentId}')">
       `;
       uploadContainer.appendChild(uploadRow);
