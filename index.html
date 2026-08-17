@@ -142,7 +142,7 @@
       color: #333;
     }
 
-    /* App Item List with Hourglass Icon */
+    /* App Item List */
     .app-list {
       display: flex;
       flex-direction: column;
@@ -191,13 +191,13 @@
       background-color: #e0e0e0;
     }
 
-    /* Android Hourglass Icon */
+    /* Exact Android System Sandglass Hourglass Icon */
     .hourglass-icon {
-      width: 16px;
-      height: 16px;
+      width: 18px;
+      height: 18px;
       fill: none;
-      stroke: #333333;
-      stroke-width: 1.8;
+      stroke: #222222;
+      stroke-width: 1.6;
       stroke-linecap: round;
       stroke-linejoin: round;
     }
@@ -205,7 +205,7 @@
     [contenteditable="true"] { outline: none; }
     [contenteditable="true"]:focus { background-color: #f0f4ff; }
 
-    /* Control Panel Outside Preview Area */
+    /* Control Panel */
     .controls-panel {
       margin-top: 20px;
       width: 360px;
@@ -213,6 +213,7 @@
       padding: 16px;
       border-radius: 8px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      box-sizing: border-box;
     }
 
     .btn {
@@ -225,23 +226,23 @@
       cursor: pointer;
     }
     .btn-add { background: #2e7d32; }
-    .btn-danger { background: #d32f2f; padding: 4px 8px; font-size: 11px; }
-    .btn-move { background: #555; padding: 4px 8px; font-size: 11px; }
 
     .graph-controls {
-      display: flex;
-      gap: 4px;
-      justify-content: space-between;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
       margin-top: 10px;
+      font-size: 12px;
     }
     .graph-controls input {
-      width: 35px;
+      width: 45px;
+      padding: 2px;
     }
   </style>
 </head>
 <body>
 
-  <!-- Screen Content Area -->
+  <!-- Phone Screen Area -->
   <div class="phone-screen" id="captureArea">
     <div class="top-bar">
       <span contenteditable="true">2:14</span>
@@ -261,11 +262,11 @@
       <div class="sub-title" contenteditable="true">Today</div>
     </div>
 
-    <!-- Interactive Bar Graph -->
+    <!-- Graph Bar Section -->
     <div class="chart-container">
       <div class="chart-grid">
-        <div class="bar-col"><div class="bar" id="bar-sun" style="height: 85%;"></div><span class="bar-day" contenteditable="true">Sun</span></div>
-        <div class="bar-col"><div class="bar active" id="bar-mon" style="height: 48%;"></div><span class="bar-day" contenteditable="true">Mon</span></div>
+        <div class="bar-col"><div class="bar" id="bar-sun" style="height: 85.3%;"></div><span class="bar-day" contenteditable="true">Sun</span></div>
+        <div class="bar-col"><div class="bar active" id="bar-mon" style="height: 46.6%;"></div><span class="bar-day" contenteditable="true">Mon</span></div>
         <div class="bar-col"><div class="bar" id="bar-tue" style="height: 0%;"></div><span class="bar-day" contenteditable="true">Tue</span></div>
         <div class="bar-col"><div class="bar" id="bar-wed" style="height: 0%;"></div><span class="bar-day" contenteditable="true">Wed</span></div>
         <div class="bar-col"><div class="bar" id="bar-thu" style="height: 0%;"></div><span class="bar-day" contenteditable="true">Thu</span></div>
@@ -284,7 +285,7 @@
 
     <div class="date-selector" contenteditable="true">‹ &nbsp;&nbsp;&nbsp;&nbsp; Mon, Aug 17 &nbsp;&nbsp;&nbsp;&nbsp; ›</div>
 
-    <!-- App Activity List -->
+    <!-- App List -->
     <div class="app-list" id="appList">
       
       <div class="app-item">
@@ -322,14 +323,17 @@
     </div>
   </div>
 
-  <!-- External Controls Panel -->
+  <!-- Control Panel -->
   <div class="controls-panel">
-    <strong>Bar Height Controls (%)</strong>
+    <strong>Bar Height Controls (Hours: 0h to 15h)</strong>
     <div class="graph-controls">
-      <span>Sun:<input type="number" value="85" onchange="adjustBar('bar-sun', this.value)"></span>
-      <span>Mon:<input type="number" value="48" onchange="adjustBar('bar-mon', this.value)"></span>
-      <span>Tue:<input type="number" value="0" onchange="adjustBar('bar-tue', this.value)"></span>
-      <span>Wed:<input type="number" value="0" onchange="adjustBar('bar-wed', this.value)"></span>
+      <span>Sun: <input type="number" step="0.5" max="15" min="0" value="12.8" onchange="adjustBarByHours('bar-sun', this.value)">h</span>
+      <span>Mon: <input type="number" step="0.5" max="15" min="0" value="7" onchange="adjustBarByHours('bar-mon', this.value)">h</span>
+      <span>Tue: <input type="number" step="0.5" max="15" min="0" value="0" onchange="adjustBarByHours('bar-tue', this.value)">h</span>
+      <span>Wed: <input type="number" step="0.5" max="15" min="0" value="0" onchange="adjustBarByHours('bar-wed', this.value)">h</span>
+      <span>Thu: <input type="number" step="0.5" max="15" min="0" value="0" onchange="adjustBarByHours('bar-thu', this.value)">h</span>
+      <span>Fri: <input type="number" step="0.5" max="15" min="0" value="0" onchange="adjustBarByHours('bar-fri', this.value)">h</span>
+      <span>Sat: <input type="number" step="0.5" max="15" min="0" value="0" onchange="adjustBarByHours('bar-sat', this.value)">h</span>
     </div>
     <hr style="margin: 12px 0;">
     <div style="display: flex; gap: 8px;">
@@ -339,21 +343,29 @@
   </div>
 
   <script>
-    // Adjust Graph Bar Heights dynamically
-    function adjustBar(barId, val) {
-      document.getElementById(barId).style.height = val + '%';
+    // Calculate and Adjust Bar Height based on exact Hours (Scale: 15h = 100%)
+    function adjustBarByHours(barId, hoursVal) {
+      let hours = parseFloat(hoursVal);
+      if (isNaN(hours)) hours = 0;
+      if (hours > 15) hours = 15;
+      
+      const percentage = (hours / 15) * 100;
+      document.getElementById(barId).style.height = percentage + '%';
     }
 
-    // Auto Logo Fetcher
+    // Dynamic App Icon Loader
     function fetchLogo(element) {
-      const name = element.innerText.trim().toLowerCase().replace(/\s+/g, '');
+      let name = element.innerText.trim().toLowerCase().replace(/\s+/g, '');
       const img = element.closest('.app-left').querySelector('.app-icon');
+      
       if (name) {
+        // Handle common app domain names
+        if(name === 'freefiremax' || name === 'freefire') name = 'garena';
         img.src = `https://www.google.com/s2/favicons?domain=${name}.com&sz=64`;
       }
     }
 
-    // Add New App Item with Controls
+    // Add New App Item
     function addNewApp() {
       const container = document.getElementById('appList');
       const div = document.createElement('div');
