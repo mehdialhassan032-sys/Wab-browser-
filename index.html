@@ -16,7 +16,6 @@
       margin: 0;
     }
 
-    /* Sharp 4-corner screen frame */
     .phone-screen {
       width: 360px;
       background: #fcfcfd;
@@ -28,7 +27,6 @@
       position: relative;
     }
 
-    /* Top Status Bar */
     .status-bar {
       display: flex;
       justify-content: space-between;
@@ -82,7 +80,6 @@
       margin-top: 4px;
     }
 
-    /* Precise Background Line Graph */
     .chart-container {
       position: relative;
       height: 120px;
@@ -167,7 +164,6 @@
       color: #333;
     }
 
-    /* App List Alignment */
     .app-list {
       display: flex;
       flex-direction: column;
@@ -198,6 +194,7 @@
       width: 32px;
       height: 32px;
       object-fit: contain;
+      border-radius: 6px;
     }
 
     .app-name {
@@ -235,7 +232,6 @@
     [contenteditable="true"] { outline: none; }
     [contenteditable="true"]:focus { background-color: #f0f4ff; }
 
-    /* Control Panel */
     .controls-panel {
       margin-top: 20px;
       width: 360px;
@@ -272,18 +268,16 @@
 <body>
 
   <div class="phone-screen" id="captureArea">
-    <!-- Top Status Bar -->
     <div class="status-bar">
-      <span contenteditable="true">3:09 ✓</span>
+      <span contenteditable="true">3:21</span>
       <div class="status-right">
         <span contenteditable="true">VoLTE</span>
-        <span contenteditable="true">6.60 KB/s</span>
+        <span contenteditable="true">0.50 KB/s</span>
         <span contenteditable="true">5G</span>
-        <span contenteditable="true">◯ 90%</span>
+        <span contenteditable="true">◯ 88%</span>
       </div>
     </div>
 
-    <!-- Navigation Header -->
     <div class="header-nav">
       <span>←</span>
       <span style="font-size: 18px;" contenteditable="true">⋮</span>
@@ -297,7 +291,6 @@
       <div class="sub-title" contenteditable="true">Yesterday</div>
     </div>
 
-    <!-- Background Grid Lines + Bars -->
     <div class="chart-container">
       <div class="chart-grid-lines">
         <div class="grid-line"></div>
@@ -334,13 +327,12 @@
       <span>›</span>
     </div>
 
-    <!-- App List -->
     <div class="app-list" id="appList">
       
       <div class="app-item">
         <div class="app-left">
           <div class="app-icon-box">
-            <img class="app-icon" src="https://www.google.com/s2/favicons?domain=instagram.com&sz=64" alt="icon">
+            <img class="app-icon" src="https://logo.clearbit.com/instagram.com" onerror="this.src='https://www.google.com/s2/favicons?domain=instagram.com&sz=64'" alt="icon">
           </div>
           <div>
             <div class="app-name" contenteditable="true" onblur="fetchLogo(this)">Instagram</div>
@@ -355,46 +347,9 @@
         </div>
       </div>
 
-      <div class="app-item">
-        <div class="app-left">
-          <div class="app-icon-box">
-            <img class="app-icon" src="https://www.google.com/s2/favicons?domain=youtube.com&sz=64" alt="icon">
-          </div>
-          <div>
-            <div class="app-name" contenteditable="true" onblur="fetchLogo(this)">YouTube</div>
-            <div class="app-time" contenteditable="true">38 minutes</div>
-          </div>
-        </div>
-        <div class="app-right">
-          <div class="divider"></div>
-          <svg class="hourglass-icon" viewBox="0 0 24 24">
-            <path d="M6 2h12v6l-4 4 4 4v6H6v-6l4-4-4-4V2z"/>
-          </svg>
-        </div>
-      </div>
-
-      <div class="app-item">
-        <div class="app-left">
-          <div class="app-icon-box">
-            <img class="app-icon" src="https://www.google.com/s2/favicons?domain=telegram.org&sz=64" alt="icon">
-          </div>
-          <div>
-            <div class="app-name" contenteditable="true" onblur="fetchLogo(this)">Telegram</div>
-            <div class="app-time" contenteditable="true">36 minutes</div>
-          </div>
-        </div>
-        <div class="app-right">
-          <div class="divider"></div>
-          <svg class="hourglass-icon" viewBox="0 0 24 24">
-            <path d="M6 2h12v6l-4 4 4 4v6H6v-6l4-4-4-4V2z"/>
-          </svg>
-        </div>
-      </div>
-
     </div>
   </div>
 
-  <!-- External Control Panel -->
   <div class="controls-panel">
     <strong>Bar Height Controls (Hours: 0h to 15h)</strong>
     <div class="graph-controls">
@@ -414,6 +369,45 @@
   </div>
 
   <script>
+    // Universal App Domain Mapping
+    const knownDomains = {
+      // Social & Messaging
+      'whatsapp': 'whatsapp.com',
+      'telegram': 'telegram.org',
+      'snapchat': 'snapchat.com',
+      'instagram': 'instagram.com',
+      'facebook': 'facebook.com',
+      'messenger': 'messenger.com',
+      'twitter': 'x.com',
+      'x': 'x.com',
+      'linkedin': 'linkedin.com',
+      'pinterest': 'pinterest.com',
+      'reddit': 'reddit.com',
+      
+      // Video & Streaming
+      'youtube': 'youtube.com',
+      'netflix': 'netflix.com',
+      'primevideo': 'primevideo.com',
+      'spotify': 'spotify.com',
+      'hotstar': 'hotstar.com',
+      'twitch': 'twitch.tv',
+      
+      // Google Services & Utility
+      'chrome': 'google.com',
+      'gmail': 'gmail.com',
+      'drive': 'drive.google.com',
+      'photos': 'photos.google.com',
+      'maps': 'maps.google.com',
+      'paytm': 'paytm.com',
+      'phonepe': 'phonepe.com',
+      'gpay': 'pay.google.com',
+      
+      // Games & Others
+      'freefire': 'ff.garena.com',
+      'bgmi': 'battlegroundsmobileindia.com',
+      'pubg': 'pubgmobile.com'
+    };
+
     function adjustBarByHours(barId, hoursVal) {
       let hours = parseFloat(hoursVal);
       if (isNaN(hours)) hours = 0;
@@ -424,16 +418,24 @@
     }
 
     function fetchLogo(element) {
-      let name = element.innerText.trim().toLowerCase().replace(/\s+/g, '');
+      let rawText = element.innerText.trim().toLowerCase();
+      let cleanName = rawText.replace(/[^a-z0-9]/g, '');
       const img = element.closest('.app-left').querySelector('.app-icon');
       
-      if (name) {
-        if(name === 'telegram') name = 'telegram.org';
-        else if(name === 'hillclimbracing') name = 'fingersoft.com';
-        else name = name + '.com';
+      if (!cleanName) return;
 
-        img.src = `https://www.google.com/s2/favicons?domain=${name}&sz=64`;
-      }
+      // Smart domain resolution
+      let domain = knownDomains[cleanName] || (cleanName + '.com');
+      
+      // High-resolution logo fetcher with fallbacks
+      img.src = `https://logo.clearbit.com/${domain}`;
+      img.onerror = function() {
+        this.onerror = function() {
+          this.onerror = null;
+          this.src = `https://api.statvoo.com/favicon/?url=${domain}`;
+        };
+        this.src = `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
+      };
     }
 
     function addNewApp() {
@@ -443,7 +445,7 @@
       div.innerHTML = `
         <div class="app-left">
           <div class="app-icon-box">
-            <img class="app-icon" src="https://www.google.com/s2/favicons?domain=google.com&sz=64" alt="icon">
+            <img class="app-icon" src="https://logo.clearbit.com/google.com" onerror="this.src='https://www.google.com/s2/favicons?domain=google.com&sz=64'" alt="icon">
           </div>
           <div>
             <div class="app-name" contenteditable="true" onblur="fetchLogo(this)">App Name</div>
