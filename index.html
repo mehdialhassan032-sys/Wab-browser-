@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Screen Time Dashboard - Final Pixel Exact UI</title>
+  <title>Screen Time Dashboard - Final Exact UI</title>
 
   <!-- External Libraries -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -21,23 +21,23 @@
       margin: 0;
     }
 
-    /* PHONE CONTAINER - EXACT NATIVE METRICS */
+    /* PHONE CONTAINER */
     .phone-screen {
       width: 360px;
       background: #ffffff;
-      padding: 20px 20px 24px 20px;
+      padding: 16px 20px 24px 20px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.18);
       box-sizing: border-box;
       color: #1f1f1f;
       position: relative;
     }
 
-    /* TOP NAVIGATION */
+    /* TOP NAVIGATION & HEADER - EXACT NATIVE TIGHT GAP */
     .header-nav {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 22px;
+      margin-bottom: 8px; /* Strict Native Spacing */
     }
 
     .nav-icon {
@@ -48,13 +48,14 @@
     }
 
     #titleText {
-      font-size: 22px;
+      font-size: 24px;
       font-weight: 400;
       margin-bottom: 20px;
       color: #1f1f1f;
       line-height: 1.2;
     }
 
+    /* CENTER METRICS */
     .center-info {
       text-align: center;
       margin-bottom: 24px;
@@ -63,16 +64,16 @@
     .badge {
       background: #e8f0fe;
       color: #1967d2;
-      padding: 5px 14px;
+      padding: 6px 16px;
       border-radius: 18px;
       font-size: 13px;
       font-weight: 500;
       display: inline-block;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
     }
 
     #timeText {
-      font-size: 40px;
+      font-size: 38px;
       font-weight: 300;
       letter-spacing: -0.5px;
       color: #1f1f1f;
@@ -86,10 +87,10 @@
       margin-top: 2px;
     }
 
-    /* GRAPH CONTAINER */
+    /* GRAPH SECTION */
     .chart-container {
       position: relative;
-      height: 110px;
+      height: 100px;
       margin: 18px 0;
       display: flex;
     }
@@ -111,7 +112,7 @@
 
     .chart-grid {
       width: 100%;
-      height: 92px;
+      height: 82px;
       display: flex;
       justify-content: space-between;
       align-items: flex-end;
@@ -167,7 +168,7 @@
       color: #3c4043;
     }
 
-    /* LIST DENSITY FIXED */
+    /* APP LIST SECTION */
     .app-list {
       display: flex;
       flex-direction: column;
@@ -239,7 +240,7 @@
     [contenteditable="true"] { outline: none; }
     [contenteditable="true"]:focus { background-color: #eef4ff; border-radius: 2px; }
 
-    /* CONTROLS */
+    /* CONTROLS DASHBOARD */
     .controls-panel {
       margin-top: 20px;
       width: 360px;
@@ -299,7 +300,7 @@
 </head>
 <body>
 
-  <!-- MOBILE SCREEN CONTAINER -->
+  <!-- MOBILE SCREEN UI -->
   <div class="phone-screen" id="captureArea">
     
     <div class="header-nav">
@@ -311,10 +312,11 @@
 
     <div class="center-info">
       <div class="badge" contenteditable="true">Screen time ▼</div>
-      <div id="timeText" contenteditable="true">6 hr, 59 min</div>
+      <div id="timeText" contenteditable="true">14 minutes</div>
       <div class="sub-title" contenteditable="true">Today</div>
     </div>
 
+    <!-- GRAPH COMPONENT -->
     <div class="chart-container">
       <div class="chart-grid-lines">
         <div class="grid-line"></div>
@@ -326,9 +328,9 @@
       </div>
 
       <div class="chart-grid">
-        <div class="bar-col"><div class="bar" id="bar-sun" style="height: 95.3%;"></div><span class="bar-day" contenteditable="true">Sun</span></div>
-        <div class="bar-col"><div class="bar active" id="bar-mon" style="height: 48%;"></div><span class="bar-day" contenteditable="true">Mon</span></div>
-        <div class="bar-col"><div class="bar" id="bar-tue" style="height: 0%;"></div><span class="bar-day" contenteditable="true">Tue</span></div>
+        <div class="bar-col"><div class="bar" id="bar-sun" style="height: 95%;"></div><span class="bar-day" contenteditable="true">Sun</span></div>
+        <div class="bar-col"><div class="bar" id="bar-mon" style="height: 80%;"></div><span class="bar-day" contenteditable="true">Mon</span></div>
+        <div class="bar-col"><div class="bar active" id="bar-tue" style="height: 5%;"></div><span class="bar-day" contenteditable="true">Tue</span></div>
         <div class="bar-col"><div class="bar" id="bar-wed" style="height: 0%;"></div><span class="bar-day" contenteditable="true">Wed</span></div>
         <div class="bar-col"><div class="bar" id="bar-thu" style="height: 0%;"></div><span class="bar-day" contenteditable="true">Thu</span></div>
         <div class="bar-col"><div class="bar" id="bar-fri" style="height: 0%;"></div><span class="bar-day" contenteditable="true">Fri</span></div>
@@ -347,19 +349,20 @@
 
     <div class="date-selector">
       <span contenteditable="true">‹</span>
-      <span contenteditable="true">Mon, Aug 17</span>
+      <span contenteditable="true">Tue, Aug 18</span>
       <span contenteditable="true">›</span>
     </div>
 
+    <!-- LIST ITEMS -->
     <div class="app-list" id="appList">
       <div class="app-item">
         <div class="app-left">
           <div class="app-icon-frame">
-            <img class="app-icon" id="img-0" src="https://unavatar.io/instagram.com" alt="icon">
+            <img class="app-icon" id="img-0" src="https://unavatar.io/youtube.com" alt="icon">
           </div>
           <div>
-            <div class="app-name" contenteditable="true">Instagram</div>
-            <div class="app-time" contenteditable="true">1 hr, 46 min</div>
+            <div class="app-name" contenteditable="true">YouTube</div>
+            <div class="app-time" contenteditable="true">7 minutes</div>
           </div>
         </div>
         <div class="app-right">
@@ -370,25 +373,25 @@
     </div>
   </div>
 
-  <!-- CONTROL DASHBOARD -->
+  <!-- CONTROL PANEL -->
   <div class="controls-panel">
     <strong>Font Size Adjuster</strong>
     <div class="slider-row">
-      <span>Title: <b id="titleVal">22px</b></span>
-      <input type="range" min="16" max="40" value="22" oninput="changeFontSize('titleText', this.value, 'titleVal')">
+      <span>Title: <b id="titleVal">24px</b></span>
+      <input type="range" min="16" max="40" value="24" oninput="changeFontSize('titleText', this.value, 'titleVal')">
     </div>
     <div class="slider-row">
-      <span>Time: <b id="timeVal">40px</b></span>
-      <input type="range" min="20" max="60" value="40" oninput="changeFontSize('timeText', this.value, 'timeVal')">
+      <span>Time: <b id="timeVal">38px</b></span>
+      <input type="range" min="20" max="60" value="38" oninput="changeFontSize('timeText', this.value, 'timeVal')">
     </div>
 
     <hr style="margin: 12px 0;">
 
-    <strong>Bar Heights (0h to 15h)</strong>
+    <strong>Bar Height Controls (0h to 15h)</strong>
     <div class="graph-controls">
-      <span>Sun: <input type="number" step="0.5" max="15" min="0" value="14.3" onchange="adjustBarByHours('bar-sun', this.value)">h</span>
-      <span>Mon: <input type="number" step="0.5" max="15" min="0" value="7.2" onchange="adjustBarByHours('bar-mon', this.value)">h</span>
-      <span>Tue: <input type="number" step="0.5" max="15" min="0" value="0" onchange="adjustBarByHours('bar-tue', this.value)">h</span>
+      <span>Sun: <input type="number" step="0.5" max="15" min="0" value="14.2" onchange="adjustBarByHours('bar-sun', this.value)">h</span>
+      <span>Mon: <input type="number" step="0.5" max="15" min="0" value="12" onchange="adjustBarByHours('bar-mon', this.value)">h</span>
+      <span>Tue: <input type="number" step="0.5" max="15" min="0" value="0.75" onchange="adjustBarByHours('bar-tue', this.value)">h</span>
       <span>Wed: <input type="number" step="0.5" max="15" min="0" value="0" onchange="adjustBarByHours('bar-wed', this.value)">h</span>
       <span>Thu: <input type="number" step="0.5" max="15" min="0" value="0" onchange="adjustBarByHours('bar-thu', this.value)">h</span>
       <span>Fri: <input type="number" step="0.5" max="15" min="0" value="0" onchange="adjustBarByHours('bar-fri', this.value)">h</span>
@@ -397,7 +400,7 @@
 
     <hr style="margin: 12px 0;">
 
-    <strong>Logo Uploads</strong>
+    <strong>Logo Upload & Change</strong>
     <div id="uploadList">
       <div class="upload-row">
         <span>App 1 Logo:</span>
@@ -413,7 +416,7 @@
     </div>
   </div>
 
-  <!-- CROPPER MODAL -->
+  <!-- CROPPER MODAL CONTAINER -->
   <div class="crop-modal" id="cropModal">
     <div class="crop-container">
       <img id="cropperImage" src="" style="max-width: 100%;">
